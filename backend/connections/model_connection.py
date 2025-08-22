@@ -10,7 +10,7 @@ load_dotenv()
 
 class GenerativeAIModel:
     def __init__(self, MODEL="gemini-1.5-flash", API_KEY=os.getenv("GOOGLE_API_KEY")):
-        self.model = ChatGoogleGenerativeAI(model=MODEL, api_key=API_KEY)
+        self.model = ChatGoogleGenerativeAI(model=MODEL, api_key=API_KEY,temperature = 1.5)
         
     def get_general_query(self, question: str):
         try:

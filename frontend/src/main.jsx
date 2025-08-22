@@ -1,0 +1,44 @@
+import { createRoot } from "react-dom/client";
+import "./styles.css";
+import { StrictMode } from "react";
+import {
+  Route,
+  RouterProvider,
+  createBrowserRouter,
+  createRoutesFromElements,
+} from "react-router-dom";
+import RootLayout from "./layout/RootLayout";
+import NotFound from "./components/NotFound";
+import { Provider } from "react-redux";
+import store from "./store/store";
+import { UploadResume, About, Home, Login, Signup } from "./pages/index";
+import AuthLayout from "./layout/AuthLayout";
+
+const router = createBrowserRouter(
+  createRoutesFromElements(
+    <Route path="/" element={<RootLayout />}>
+      <Route index element={<Home />} />
+      <Route path="about" element={<About />} />
+
+      {/* Public Routes */}
+      <Route path="login" element={<Login />} />
+      <Route path="signup" element={<Signup />} />
+
+      {/* Protected Routes */}
+      <Route element={<AuthLayout authentication={true} />}>
+        <Route path="upload_resume" element={<UploadResume />} />
+      </Route>
+
+      {/* Catch-all */}
+      <Route path="*" element={<NotFound />} />
+    </Route>
+  )
+);
+
+createRoot(document.getElementById("root")).render(
+  <StrictMode>
+    <Provider store={store}>
+      <RouterProvider router={router} />
+    </Provider>
+  </StrictMode>
+);

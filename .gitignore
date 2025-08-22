@@ -18,6 +18,8 @@ backend\.python-version
 backend\.venv
 backend\__pycache__
 backend\.env
+frontend\.env
+frontend\.env.sample
 
 # IDE and editor files
 backend\pyproject.toml

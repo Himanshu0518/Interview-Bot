@@ -1,0 +1,6 @@
+{
+  "jobs": [
+    { "id": 1, "title": "Software Engineer" },
+    { "id": 2, "title": "Data Scientist" }
+  ]
+}

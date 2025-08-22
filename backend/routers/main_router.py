@@ -11,6 +11,7 @@ from langchain.schema import AIMessage
 from models.auth import TokenData
 import re 
 from routers.auth import get_current_user
+
 main_router = APIRouter()
 client = MongoDBClient() 
 
@@ -36,12 +37,20 @@ async def upload_resume(token_data:Annotated[TokenData, Depends(get_current_user
     else:
         logging.info("Parsed resume dict directly received.")
         extracted_info = result
-    
+
     db_resume_data = ParsedResumeDB(**extracted_info, username=token_data.username)
-    try:
-        await client.insert_one("Resume", db_resume_data.model_dump())
-    except Exception as e:
-        raise MyException(e, sys)
+    current_resume = await client.find_one("Resume", {"username": token_data.username})
+    if current_resume:
+        try:
+            await client.update_one("Resume", {"username": token_data.username}, db_resume_data.model_dump())
+        except Exception as e:
+            raise MyException(e, sys)
+        
+    else:  
+        try:
+            await client.insert_one("Resume", db_resume_data.model_dump())
+        except Exception as e:
+            raise MyException(e, sys)
     
     return ParsedResume(**extracted_info)
 
@@ -83,6 +92,25 @@ async def get_questions(token_data:Annotated[TokenData, Depends(get_current_user
     logging.info(len(extracted_info["questions"]),"Questions generated successfully from AI")
     return extracted_info
 
+@main_router.post("/resume_data", response_model=ParsedResume)
+async def post_resume_data(resume_data: List[ParsedResumeDB] , token_data:Annotated[TokenData, Depends(get_current_user)]):
+    db_resume_data = ParsedResumeDB(**resume_data, username=token_data.username)
+    try:
+      
+      current_resume = await client.find_one("Resume", {"username": token_data.username})
+    except Exception as e:
+        raise MyException(e, sys)
 
-
+    if current_resume:
+        try:
+            await client.update_one("Resume", {"username": token_data.username}, db_resume_data.model_dump())
+        except Exception as e:
+            raise MyException(e, sys)
+    else:
+        try:
+            await client.insert_one("Resume", db_resume_data.model_dump())
+        except Exception as e:
+            raise MyException(e, sys)
+    
+    return ParsedResume(**resume_data)
 
