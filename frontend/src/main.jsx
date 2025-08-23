@@ -11,24 +11,27 @@ import RootLayout from "./layout/RootLayout";
 import NotFound from "./components/NotFound";
 import { Provider } from "react-redux";
 import store from "./store/store";
-import { UploadResume, About, Home, Login, Signup } from "./pages/index";
+import { UploadResume, About, Home, Login, Signup, TestSetup, TestPage } from "./pages/index";
 import AuthLayout from "./layout/AuthLayout";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route path="/" element={<RootLayout />}>
       <Route index element={<Home />} />
+      <Route path="home" element={<Home />} />
       <Route path="about" element={<About />} />
-
+      
       {/* Public Routes */}
       <Route path="login" element={<Login />} />
       <Route path="signup" element={<Signup />} />
-
+      
       {/* Protected Routes */}
       <Route element={<AuthLayout authentication={true} />}>
         <Route path="upload_resume" element={<UploadResume />} />
+       <Route path="/test_setup" element={<TestSetup />} />
+       <Route path="/test" element={<TestPage />} />
       </Route>
-
+      
       {/* Catch-all */}
       <Route path="*" element={<NotFound />} />
     </Route>

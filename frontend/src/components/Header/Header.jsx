@@ -2,7 +2,7 @@ import React from 'react'
 import { NavLink } from 'react-router-dom'
 import { useNavigate } from 'react-router-dom'
 import { useSelector, useDispatch } from 'react-redux'
-// import { logout } from '../' // adjust path if needed
+import { logout } from '../../features/authSlice' // adjust path if needed
 
 function Header() {
   const authStatus = useSelector((state) => state.auth.status);
@@ -15,10 +15,12 @@ function Header() {
     { name: "Upload Resume", path: "/upload_resume" },
   ];
 
-  // const handleLogout = () => {
-  //   dispatch(logout());
-  //   navigate("/login");
-  // };
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    dispatch(logout());
+    navigate("/home", { replace: true });
+
+  };
 
   return (
     <header className="bg-gray-900 text-white shadow-md">
@@ -50,7 +52,7 @@ function Header() {
           {/* Auth Button */}
           {authStatus ? (
             <button
-              // onClick={handleLogout}
+              onClick={handleLogout}
               className="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg text-sm font-medium"
             >
               Logout

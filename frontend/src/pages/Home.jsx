@@ -1,5 +1,5 @@
 import React from 'react'
-import {Brain, ArrowRight } from 'lucide-react'
+import { ArrowRight } from 'lucide-react'
 import PracticeButton from '../components/PracticeButton'
 function Home() {
   return (
