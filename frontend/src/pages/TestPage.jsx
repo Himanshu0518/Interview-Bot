@@ -5,10 +5,16 @@ import { useNavigate } from "react-router-dom";
 
 function TestPage() {
   const location = useLocation();
-  const { numQuestions, difficulty } = location.state || { 
-    numQuestions: 5, 
-    difficulty: "easy" 
+
+  // Fixed: Match the variable names from TestSetupPage
+  const { num_questions, difficulty_level, target_companies, interview_type, interview_description } = location.state || { 
+    num_questions: 10, // Match TestSetupPage default
+    difficulty_level: "Medium", // Match TestSetupPage default
+    target_companies: "FAANG",
+    interview_type: "Technical",
+    interview_description: "Software Engineer"
   };
+  
   const Navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [questions, setQuestions] = useState([]);
@@ -23,10 +29,13 @@ function TestPage() {
       try {
         setLoading(true);
         setError(null);
-        
+
         const response = await TestServices.get_questions({
-          num_questions: numQuestions,
-          difficulty_level: difficulty,
+          num_questions: num_questions,
+          difficulty_level: difficulty_level,
+          target_companies: target_companies || ["FAANG"],
+          interview_type: interview_type || "Technical",
+          interview_description: interview_description || "Software Engineer",
         });
 
         if (response && response.questions) {
@@ -41,9 +50,9 @@ function TestPage() {
         setLoading(false);
       }
     };
-    
+
     fetchQuestions();
-  }, [numQuestions, difficulty]);
+  }, [num_questions, difficulty_level, target_companies, interview_type, interview_description]);
 
   const handleOptionChange = (qIndex, optionIndex) => {
     if (!submitted) {
@@ -78,7 +87,7 @@ function TestPage() {
     if (percentage >= 80) return "🎊";
     if (percentage >= 70) return "👏";
     if (percentage >= 60) return "👍";
-    return "💪";
+    return "💪 Keep it up! ";
   };
 
   // Loading state
@@ -93,8 +102,8 @@ function TestPage() {
             ⚡ Generating your questions...
           </p>
           <p className="text-sm text-gray-500 mt-2">
-            Difficulty: <span className="capitalize font-medium">{difficulty}</span> | 
-            Questions: <span className="font-medium">{numQuestions}</span>
+            Difficulty: <span className="capitalize font-medium">{difficulty_level.toLowerCase()}</span> | 
+            Questions: <span className="font-medium">{num_questions}</span>
           </p>
         </div>
       </div>
@@ -131,7 +140,7 @@ function TestPage() {
           </h1>
           <div className="flex justify-center items-center gap-4 text-sm text-gray-600">
             <span className="bg-white px-3 py-1 rounded-full shadow-sm">
-              <span className="capitalize font-medium">{difficulty}</span> Level
+              <span className="capitalize font-medium">{difficulty_level}</span> Level
             </span>
             <span className="bg-white px-3 py-1 rounded-full shadow-sm">
               {questions.length} Questions
@@ -266,12 +275,11 @@ function TestPage() {
                 </div>
                 
                 <button
-                  onClick={() =>Navigate('/test_setup')}
+                  onClick={() => Navigate('/test_setup')}
                   className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
                 >
                   Take Another Test 🔄
                 </button>
-
               </div>
             )}
           </div>

@@ -1,68 +1,76 @@
-import React from 'react'
-import { useNavigate } from 'react-router-dom'
-import { useForm } from 'react-hook-form' // Fixed import
-import Input from '../components/Input'
+import React from "react";
+import { useForm } from "react-hook-form";
+import Input from "../components/Input";
+import { useNavigate } from "react-router-dom";
 
-function TestSetup() {
-  const { register, handleSubmit } = useForm({ // Fixed destructuring
+function TestSetupPage() {
+  const { register, handleSubmit } = useForm({
     defaultValues: {
-      numQuestions: 5,
-      difficulty: "easy"
-    }
-  })
-  const navigate = useNavigate()
+      num_questions: 10,
+      difficulty_level: "Medium",
+      target_companies: "FAANG",
+      interview_type: "Technical",
+      interview_description: "Software Engineer",
+    },
+  });
+  const navigate = useNavigate();
 
   const onSubmit = (data) => {
-    // Convert numQuestions to number since form inputs return strings
-    const formData = {
-      numQuestions: parseInt(data.numQuestions, 10),
-      difficulty: data.difficulty
-    }
-    navigate("/test", { state: formData })
-  }
+    // ensure target_companies is always array
+    console.log(data);
+    navigate("/test", { state: data });
+  };
 
   return (
-    <div className="max-w-md mx-auto p-6 bg-white shadow rounded-xl mt-10">
-      <h2 className="text-2xl font-bold mb-6 text-center">Setup Your Test</h2>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-lg space-y-4"
+      >
+        <h1 className="text-2xl font-bold text-gray-800 mb-4">⚙️ Test Setup</h1>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <Input
           label="Number of Questions"
           type="number"
-          {...register("numQuestions", { 
-            required: "Number of questions is required",
-            min: { value: 1, message: "Minimum 1 question required" },
-            max: { value: 50, message: "Maximum 50 questions allowed" }
-          })}
-          min="1"
-          max="50"
-          className="mt-1 w-full border p-2 rounded-lg"
+          {...register("num_questions", { valueAsNumber: true })}
         />
 
-        {/* For select, use a regular select element or modify your Input component */}
-        <div className="w-full">
-          <label className="inline-block mb-1 pl-1 font-semibold">
-            Difficulty Level
-          </label>
-          <select
-            {...register("difficulty", { required: "Difficulty level is required" })}
-            className="px-3 py-2 rounded-lg bg-white text-black outline-none focus:bg-gray-50 duration-200 border border-gray-200 w-full"
-          >
-            <option value="easy">Easy</option>
-            <option value="medium">Medium</option>
-            <option value="hard">Hard</option>
-          </select>
-        </div>
+        <Input label="Difficulty Level" type="select" {...register("difficulty_level")}>
+          <option value="Easy">Easy</option>
+          <option value="Medium">Medium</option>
+          <option value="Hard">Hard</option>
+        </Input>
+
+        <Input
+          label="Target Companies (comma separated)"
+          type="text"
+          placeholder="FAANG, Goldman Sachs, Uber"
+          {...register("target_companies")}
+        />
+
+        <Input label="Interview Type" type="select" {...register("interview_type")}>
+          <option value="Technical">Technical</option>
+          <option value="Behavioral">Behavioral</option>
+          <option value="Case Study">Case Study</option>
+          <option value="Coding">Coding</option>
+        </Input>
+
+        <Input
+          label="Job Description / Role"
+          type="text"
+          placeholder="Software Engineer"
+          {...register("interview_description")}
+        />
 
         <button
-          type="submit" // Changed to type="submit"
-          className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors"
+          type="submit"
+          className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white py-3 rounded-xl font-semibold transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
         >
-          Start Test
+          Start Test 🚀
         </button>
       </form>
     </div>
-  )
+  );
 }
 
-export default TestSetup
+export default TestSetupPage;

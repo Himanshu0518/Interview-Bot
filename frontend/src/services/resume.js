@@ -105,7 +105,7 @@ class TestServices {
   }
 
   // ✅ Get questions (POST /get_questions)
-  async get_questions({num_questions, difficulty_level }) {
+  async get_questions({num_questions, difficulty_level , target_companies, interview_type, interview_description}) {
     try {
       const response = await fetch(`${this.BASE_URL}/get_questions`, {
         method: "POST",
@@ -113,7 +113,7 @@ class TestServices {
           "Content-Type": "application/json",
           ...this.getAuthHeader(),
         },
-        body: JSON.stringify({ num_questions, difficulty_level }),
+        body: JSON.stringify({ num_questions, difficulty_level , target_companies, interview_type, interview_description }),
       });
 
       if (!response.ok) {

@@ -21,7 +21,7 @@ function Home() {
                 <h3 className="text-xl font-bold text-gray-900 mb-4 text-center">Upload Resume</h3>
                 <p className="text-gray-600 text-center">Upload your resume and let our AI analyze your skills, experience, and background</p>
               </div>
-              <ArrowRight className="hidden md:block absolute top-1/2 -right-4 w-8 h-8 text-blue-500 transform -translate-y-1/2" />
+       <ArrowRight className="hidden md:block absolute top-1/2 -right-11 w-14 h-10 text-blue-600 transform -translate-y-1/2 drop-shadow-lg hover:text-blue-700 hover:scale-120 transition-all duration-300 ease-in-out" />
             </div>
             
             <div className="relative">
@@ -32,8 +32,8 @@ function Home() {
                 <h3 className="text-xl font-bold text-gray-900 mb-4 text-center">Practice Interviews</h3>
                 <p className="text-gray-600 text-center">Answer personalized questions generated specifically for your background and target roles</p>
               </div>
-              <ArrowRight className="hidden md:block absolute top-1/2 -right-4 w-8 h-8 text-blue-500 transform -translate-y-1/2" />
-            </div>
+                <ArrowRight className="hidden md:block absolute top-1/2 -right-11 w-14 h-10 text-blue-600 transform -translate-y-1/2 drop-shadow-lg hover:text-blue-700 hover:scale-120 transition-all duration-300 ease-in-out" />
+             </div>
             
             <div>
               <div className="bg-white rounded-2xl shadow-lg p-8 border border-gray-100 hover:shadow-xl transition-shadow duration-300">

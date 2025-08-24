@@ -6,6 +6,7 @@ from utils.logger import logging
 from utils.exception import MyException
 import sys 
 
+
 load_dotenv()
 
 class GenerativeAIModel:

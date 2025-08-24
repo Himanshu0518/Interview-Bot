@@ -72,10 +72,14 @@ function Login() {
                     required: true,
                 })}
                 />
+              
                 <Button
                 type="submit"
-                className="w-full"
-                >Sign in</Button>
+                className="w-full hover:bg-blue-700  py-3 px-4 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 shadow-sm hover:shadow-md"
+                >
+                Sign in
+                </Button>
+
             </div>
         </form>
         </div>

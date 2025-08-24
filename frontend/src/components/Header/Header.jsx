@@ -1,4 +1,4 @@
-import React from 'react'
+import React , { useEffect , useState} from 'react'
 import { NavLink } from 'react-router-dom'
 import { useNavigate } from 'react-router-dom'
 import { useSelector, useDispatch } from 'react-redux'
@@ -8,7 +8,8 @@ function Header() {
   const authStatus = useSelector((state) => state.auth.status);
   const navigate = useNavigate();
   const dispatch = useDispatch();
-
+  
+ 
   const navItems = [
     { name: "Home", path: "/" },
     { name: "About", path: "/about" },
@@ -65,6 +66,7 @@ function Header() {
               Login
             </button>
           )}
+
         </nav>
       </div>
     </header>

@@ -35,10 +35,32 @@ Resume Text:
 {resume_text}
 """
 
-
-questions_promt  = """
+questions_prompt = """
 You are an interview question generator.
-Given the candidate's parsed resume text, generate exactly {num_questions} multiple-choice  {difficulty_level} level interview questions.
+
+Inputs you receive:
+- Candidate's resume text
+- Target company
+- Job description
+- Test type (e.g., technical, behavioral, case study, coding)
+- Difficulty level (easy, medium, hard)
+- Number of questions
+
+Your task:
+Generate exactly {num_questions} {difficulty_level}-level multiple-choice interview questions
+tailored to the candidate, the company, and the job description.
+
+Rules for question generation:
+- Mix questions from **skills, projects, and core concepts** (don’t only focus on projects).
+- Ensure questions match the **test-type**:
+  - "technical": focus on algorithms, ML/DL/NLP, databases, or system design (based on resume & JD).
+  - "behavioral": focus on teamwork, problem-solving, leadership.
+  - "case study": focus on scenario-based problem solving.
+- Company-specific twist: If the target company is known for something (e.g., FAANG → scalability, startups → hands-on ML), reflect that in the questions.
+- Skills mentioned in the resume **must appear in at least 40% of the questions**.
+- The "answers" list must contain only the exact text of the correct option (must match one option exactly).
+- Do not include any text outside the dictionary.
+- Ensure the dictionary is valid Python syntax and can be parsed with ast.literal_eval().
 
 Return the result strictly in this Python dictionary format:
 {{
@@ -59,10 +81,15 @@ Return the result strictly in this Python dictionary format:
     ],
 }}
 
-Rules:
-- The "answers" list must contain only the exact text of the correct option (must match one option exactly).
-- Do not include any text outside the dictionary.
-- Ensure the dictionary is valid Python syntax and can be parsed with ast.literal_eval().
-Resume:
+Candidate Resume:
 {resume_text}
+
+Target Company:
+{target_companies}
+
+Job Description:
+{interview_description}
+
+Test Type:
+{interview_type}
 """

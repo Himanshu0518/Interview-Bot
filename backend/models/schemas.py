@@ -25,8 +25,28 @@ class QuestionListResponse(BaseModel):
     questions: List[SingleQues]
     
 class QuestionRequest(BaseModel):
-    num_questions : Annotated[int, Field(default=10 , description="Number of questions" , ge=1 , le=50)]
-    difficulty_level : Annotated[str|None, Field(default="Medium" , description="Difficulty level" )]
+    num_questions: Annotated[
+        int, 
+        Field(default=10, ge=1, le=50, description="Number of questions to generate (1–50)")
+    ]
+    difficulty_level: Annotated[
+        str, 
+        Field(default="Medium", description="Difficulty level: Easy, Medium, or Hard")
+    ]
+    target_companies: Annotated[
+        str, 
+        Field(default="FAANG,Goldman Sachs,Uber", description="Target companies for tailoring questions")
+    ]
+    interview_type: Annotated[
+        str, 
+        Field(default="Technical", description="Type of interview: Technical, Behavioral, Case Study, Coding")
+    ]
+    interview_description: Annotated[
+        str, 
+        Field(default="Software Engineer", description="Job role/title or description")
+    ]
+   
+    
 
 class BotModel(BaseModel):
     query: str

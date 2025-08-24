@@ -3,7 +3,7 @@ import os, sys
 from fastapi import HTTPException
 from langchain.prompts import PromptTemplate
 from connections.model_connection import GenerativeAIModel
-from utils.promts import parse_resume_prompt, questions_promt
+from utils.promts import parse_resume_prompt, questions_prompt
 from utils.exception import MyException
 from utils.logger import logging
 import json
@@ -53,11 +53,17 @@ async def parse_resume(file):
     return response
 
 
-async def get_questions_from_resume(extracted_info, num_questions,difficulty_level):
+async def get_questions_from_resume(extracted_info, input_data: dict):
     """Generate interview questions with answers from resume info."""
-    prompt = PromptTemplate.from_template(questions_promt)
+    prompt = PromptTemplate.from_template(questions_prompt)
 
-    final_prompt = prompt.format(resume_text=json.dumps(extracted_info), num_questions=num_questions, difficulty_level=difficulty_level)
+    final_prompt = prompt.format(resume_text=json.dumps(extracted_info),
+                                  num_questions=input_data['num_questions'],
+                                  difficulty_level=input_data['difficulty_level'],
+                                   interview_type=input_data['interview_type'],
+                                  target_companies=input_data["target_companies"],
+                                  interview_description=input_data['interview_description']) 
+    
     response =  await model.get_response(final_prompt)
     logging.info("Questions generated successfully from AI")
 

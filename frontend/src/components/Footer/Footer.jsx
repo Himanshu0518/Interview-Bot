@@ -31,14 +31,14 @@ function Footer() {
         <div>
           <h3 className="text-lg font-semibold text-white">Follow Us</h3>
           <div className="flex mt-3 space-x-4">
-            <a href="https://github.com" target="_blank" rel="noreferrer" className="hover:text-white">
+            <a href="https://github.com/Himanshu0518" target="_blank" rel="noreferrer" className="hover:text-white">
               <FaGithub size={20} />
             </a>
-            <a href="https://linkedin.com" target="_blank" rel="noreferrer" className="hover:text-white">
+            <a href="https://www.linkedin.com/in/himanshu-singh23226/" target="_blank" rel="noreferrer" className="hover:text-white">
               <FaLinkedin size={20} />
             </a>
            
-            <a href="" className="hover:text-white">
+            <a href="mailto:himanshu.iiitu2027@gmail.com" className="hover:text-white">
               <MdEmail size={20} />
             </a>
           </div>

@@ -78,7 +78,7 @@ async def get_questions(token_data:Annotated[TokenData, Depends(get_current_user
         if "_id" in resume_data:
             resume_data.pop("_id")
 
-        questions = await get_questions_from_resume(resume_data, input_data["num_questions"], input_data["difficulty_level"])
+        questions = await get_questions_from_resume(resume_data, input_data)
     except Exception as e:
         raise MyException(e, sys)
     
@@ -89,7 +89,9 @@ async def get_questions(token_data:Annotated[TokenData, Depends(get_current_user
         extracted_info = questions
     
    
-    logging.info(len(extracted_info["questions"]),"Questions generated successfully from AI")
+    logging.info(
+        f"{len(extracted_info['questions'])} questions generated successfully for {username}"
+    )
     return extracted_info
 
 @main_router.post("/resume_data", response_model=ParsedResume)
