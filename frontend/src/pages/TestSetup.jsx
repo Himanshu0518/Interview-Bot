@@ -53,6 +53,9 @@ function TestSetupPage() {
           <option value="Behavioral">Behavioral</option>
           <option value="Case Study">Case Study</option>
           <option value="Coding">Coding</option>
+          <option value="Apttitude">Aptitude</option>
+          <option value="Reasoning">Reasoning</option>
+        
         </Input>
 
         <Input
