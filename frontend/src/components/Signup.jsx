@@ -1,5 +1,5 @@
 import React, {useState} from 'react'
-import authService from '../Services/auth'
+import AuthServices from '../services/auth'
 import {Link ,useNavigate} from 'react-router-dom'
 import {login} from '../features/authSlice'
 import {Button, Input} from './index.js'
@@ -19,9 +19,9 @@ function Signup() {
         setError("")
         try {
             console.log(data)
-            const userData = await authService.register(data)
+            const userData = await AuthServices.register(data)
             if (userData) {
-                const userData = await authService.getCurrentUser()
+                const userData = await AuthServices.getCurrentUser()
                 if(userData) dispatch(login(userData));
                 navigate("/")
 

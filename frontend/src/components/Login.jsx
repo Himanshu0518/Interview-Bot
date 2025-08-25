@@ -3,7 +3,7 @@ import {Link, useNavigate} from 'react-router-dom'
 import { login as authLogin  } from '../features/authSlice'
 import {Button, Input} from "./index.js"
 import {useDispatch} from "react-redux"
-import authService from "../services/auth";
+import AuthServices from "../services/auth";
 import {useForm} from "react-hook-form"
 import TestServices from "../services/resume"
 import {setResume} from "../features/resumeSlice"
@@ -17,9 +17,9 @@ function Login() {
     const login = async(data) => {
         setError("")
         try {
-            const session = await authService.login(data)
+            const session = await AuthServices.login(data)
             if (session) {
-                const userData = await authService.getCurrentUser()
+                const userData = await AuthServices.getCurrentUser()
                 if(userData) dispatch(authLogin(userData));
                 navigate("/")
 
