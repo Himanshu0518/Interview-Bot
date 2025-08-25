@@ -3,7 +3,7 @@ import {Link, useNavigate} from 'react-router-dom'
 import { login as authLogin  } from '../features/authSlice'
 import {Button, Input} from "./index.js"
 import {useDispatch} from "react-redux"
-import authService from "../Services/auth"
+import authService from "../services/auth";
 import {useForm} from "react-hook-form"
 import TestServices from "../services/resume"
 import {setResume} from "../features/resumeSlice"
