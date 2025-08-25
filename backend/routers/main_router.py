@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends , File, UploadFile
 from typing import Annotated, List
 from utils.main_utils import parse_resume , get_questions_from_resume 
-from models.schemas import ParsedResume,QuestionListResponse,ParsedResumeDB,QuestionRequest
+from models.schemas import ParsedResume,ParsedResumeDB,QuestionRequest
 from utils.exception import MyException
 from utils.logger import logging
 import sys
@@ -38,11 +38,11 @@ async def upload_resume(token_data:Annotated[TokenData, Depends(get_current_user
         logging.info("Parsed resume dict directly received.")
         extracted_info = result
 
-    db_resume_data = ParsedResumeDB(**extracted_info, username=token_data.username)
-    current_resume = await client.find_one("Resume", {"username": token_data.username})
+    db_resume_data = ParsedResumeDB(**extracted_info, username=token_data.username , user_id=token_data.user_id)
+    current_resume = await client.find_one("Resume", {"user_id": token_data.user_id})
     if current_resume:
         try:
-            await client.update_one("Resume", {"username": token_data.username}, db_resume_data.model_dump())
+            await client.update_one("Resume", {"user_id": token_data.user_id}, db_resume_data.model_dump())
         except Exception as e:
             raise MyException(e, sys)
         
@@ -58,7 +58,7 @@ async def upload_resume(token_data:Annotated[TokenData, Depends(get_current_user
 @main_router.get("/get_resume", response_model=ParsedResume)
 async def get_resume(token_data:Annotated[TokenData, Depends(get_current_user)]):
     try:
-        resume_data = await client.find_one("Resume", {"username": token_data.username})
+        resume_data = await client.find_one("Resume", {"user_id": token_data.user_id})
     except Exception as e:
         raise MyException(e, sys)
 
@@ -68,15 +68,20 @@ async def get_resume(token_data:Annotated[TokenData, Depends(get_current_user)])
 @main_router.post("/get_questions")
 async def get_questions(token_data:Annotated[TokenData, Depends(get_current_user)] , question_query: QuestionRequest):
     username = token_data.username
+    user_id = token_data.user_id
     input_data = question_query.model_dump()
     try:
-        resume_data = await client.find_one("Resume", {"username": username})
+        resume_data = await client.find_one("Resume", {"user_id": user_id})
     except Exception as e:
         raise MyException(e, sys)
     
     try:
         if "_id" in resume_data:
             resume_data.pop("_id")
+        if "user_id" in resume_data:
+            resume_data.pop("user_id")
+        if "username" in resume_data:
+            resume_data.pop("username")
 
         questions = await get_questions_from_resume(resume_data, input_data)
     except Exception as e:
@@ -99,13 +104,13 @@ async def post_resume_data(resume_data: List[ParsedResumeDB] , token_data:Annota
     db_resume_data = ParsedResumeDB(**resume_data, username=token_data.username)
     try:
       
-      current_resume = await client.find_one("Resume", {"username": token_data.username})
+      current_resume = await client.find_one("Resume", {"user_id": token_data.user_id})
     except Exception as e:
         raise MyException(e, sys)
 
     if current_resume:
         try:
-            await client.update_one("Resume", {"username": token_data.username}, db_resume_data.model_dump())
+            await client.update_one("Resume", {"user_id": token_data.user_id}, db_resume_data.model_dump())
         except Exception as e:
             raise MyException(e, sys)
     else:

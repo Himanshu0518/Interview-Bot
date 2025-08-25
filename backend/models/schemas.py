@@ -14,6 +14,7 @@ class ParsedResume(BaseModel):
 
 class ParsedResumeDB(ParsedResume):
     username: Annotated[str, ...]
+    user_id: Annotated[str, ...]
 
 class SingleQues(BaseModel):
     question: str

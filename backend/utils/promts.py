@@ -56,8 +56,10 @@ Rules for question generation:
   - "technical": focus on algorithms, ML/DL/NLP, databases, or system design (based on resume & JD).
   - "behavioral": focus on teamwork, problem-solving, leadership.
   - "case study": focus on scenario-based problem solving.
+  - "Appitude": focus on general knowledge and aptitude.
+   ....
 - Company-specific twist: If the target company is known for something (e.g., FAANG → scalability, startups → hands-on ML), reflect that in the questions.
-- Skills mentioned in the resume **must appear in at least 40% of the questions**.
+- Skills mentioned in the resume **must appear in at least 40% of the questions if test type is "technical"**.
 - The "answers" list must contain only the exact text of the correct option (must match one option exactly).
 - Do not include any text outside the dictionary.
 - Ensure the dictionary is valid Python syntax and can be parsed with ast.literal_eval().

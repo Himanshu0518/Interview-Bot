@@ -2,10 +2,10 @@ import os
 import sys
 import motor.motor_asyncio
 import certifi
+from bson import ObjectId   # ✅ Add this
 
 from utils.exception import MyException
 from utils.logger import logging
-
 
 ca = certifi.where()
 
@@ -25,7 +25,7 @@ class MongoDBClient:
 
                 MongoDBClient.client = motor.motor_asyncio.AsyncIOMotorClient(
                     mongo_db_url,
-                #    tlsCAFile=ca,
+                    # tlsCAFile=ca,
                     connectTimeoutMS=60000,
                     serverSelectionTimeoutMS=60000,
                     socketTimeoutMS=60000
@@ -42,6 +42,13 @@ class MongoDBClient:
     def get_collection(self, collection_name: str):
         """Return a Motor collection instance."""
         return self.database[collection_name]
+
+    def to_object_id(self, id_str: str) -> ObjectId:
+        """Convert string ID to ObjectId safely."""
+        try:
+            return ObjectId(id_str)
+        except Exception:
+            raise ValueError(f"Invalid ObjectId: {id_str}")
 
     async def insert_one(self, collection_name: str, data: dict):
         """Insert a document asynchronously."""
@@ -75,5 +82,14 @@ class MongoDBClient:
             result = await self.get_collection(collection_name).update_one(query, {"$set": update_data})
             logging.info(f"Matched {result.matched_count}, Modified {result.modified_count}")
             return result.modified_count
+        except Exception as e:
+            raise MyException(e, sys)
+
+    async def delete_one(self, collection_name: str, query: dict):
+        """Delete a document asynchronously."""
+        try:
+            result = await self.get_collection(collection_name).delete_one(query)
+            logging.info(f"Deleted {result.deleted_count} document(s)")
+            return result.deleted_count
         except Exception as e:
             raise MyException(e, sys)

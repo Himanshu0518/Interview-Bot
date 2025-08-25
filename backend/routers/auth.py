@@ -7,7 +7,8 @@ from datetime import datetime, timedelta, timezone
 from typing import Annotated
 import jwt
 import os
-from fastapi import Depends, FastAPI, HTTPException, status
+from bson import ObjectId
+from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jwt.exceptions import InvalidTokenError
 from passlib.context import CryptContext
@@ -43,7 +44,7 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
     return encoded_jwt
 
 
-async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)])-> TokenData:
+async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]) -> TokenData:
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
@@ -52,16 +53,17 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)])-> Toke
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         username: str = payload.get("sub")
-        if username is None:
+        user_id: str = payload.get("user_id")
+
+        if username is None or user_id is None:
             raise credentials_exception
 
-        # Check in DB if user exists
-        user_db = await client.find_one("Users", {"username": username})
+        # ✅ Convert string back to ObjectId
+        user_db = await client.find_one("Users", {"_id": ObjectId(user_id)})
         if not user_db:
             raise credentials_exception
 
-        # Return as TokenData or full user dict depending on your needs
-        return TokenData(username=username)
+        return TokenData(username=username, user_id=user_id)
 
     except InvalidTokenError:
         raise credentials_exception
@@ -112,14 +114,14 @@ async def login_for_access_token(form_data: Annotated[OAuth2PasswordRequestForm,
         password = form_data.password
 
         user_db = await client.find_one("Users", {"username": username})
-        logging.info(user_db)
+        logging.info("user data received")
         if not user_db or not verify_password(password, user_db["hashed_password"]):
             raise HTTPException(status_code=400, detail="Incorrect username or password.")
 
         access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)    
 
         access_token = create_access_token(
-            data={"sub": user_db["username"]},
+            data={"sub": user_db["username"] , "user_id": str(user_db["_id"])},
             expires_delta=access_token_expires
         )
 
