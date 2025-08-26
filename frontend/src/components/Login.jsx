@@ -2,7 +2,7 @@ import React, {useState} from 'react'
 import {Link, useNavigate} from 'react-router-dom'
 import { login as authLogin  } from '../features/authSlice'
 import {Button, Input} from "./index.js"
-import {useDispatch} from "react-redux"
+import {useDispatch, useSelector} from "react-redux"
 import AuthServices from "../services/auth";
 import {useForm} from "react-hook-form"
 import TestServices from "../services/resume"
@@ -13,6 +13,7 @@ function Login() {
     const dispatch = useDispatch()
     const {register, handleSubmit} = useForm()
     const [error, setError] = useState("")
+    const resumeData = useSelector((state) => state.resume.data);
 
     const login = async(data) => {
         setError("")
@@ -22,10 +23,13 @@ function Login() {
                 const userData = await AuthServices.getCurrentUser()
                 if(userData) dispatch(authLogin(userData));
                 navigate("/")
-
+                
+                if(resumeData.length ) {
+                             
                 const resume = await TestServices.get_resume()
                 if (resume) {
                     dispatch(setResume(resume));
+                 } 
                 }
             }
         } catch (error) {
