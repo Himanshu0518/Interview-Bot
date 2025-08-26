@@ -48,6 +48,7 @@ class QuestionRequest(BaseModel):
     ]
    
     
-
 class BotModel(BaseModel):
     query: str
+
+from pydantic import BaseModel

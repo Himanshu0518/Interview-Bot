@@ -47,7 +47,7 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
 async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]) -> TokenData:
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Could not validate credentials",
+        message="Could not validate credentials",
         headers={"WWW-Authenticate": "Bearer"},
     )
     try:
@@ -82,11 +82,17 @@ async def register_user(user_data: UserCreate):
             "Users", 
             {"$or": [{"username": username}, {"email": email}]}
         )
+
         if existing_user:
-            raise HTTPException(
-                status_code=400,
-                detail="Username or Email already exists."
-            )
+                raise HTTPException(
+                    status_code=400,
+                    detail={
+                        "error": "Bad Request",
+                        "message": "Username or Email already exists.Try logging in or use another email.",
+                        "code": 1001,
+                        
+                    }
+                )
 
         # --- 2. Hash password ---
         plain_password = user_dict.pop("password")
@@ -116,7 +122,15 @@ async def login_for_access_token(form_data: Annotated[OAuth2PasswordRequestForm,
         user_db = await client.find_one("Users", {"username": username})
         logging.info("user data received")
         if not user_db or not verify_password(password, user_db["hashed_password"]):
-            raise HTTPException(status_code=400, detail="Incorrect username or password.")
+            raise HTTPException(
+                status_code=400,
+                detail={
+                    "error": "Authentication Failed",
+                    "message": "The username or password you entered is incorrect. Please check your credentials and try again.",
+                    "code": 1001
+                }
+            )
+
 
         access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)    
 
