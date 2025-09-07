@@ -26,3 +26,4 @@ class GenerativeAIModel:
         except Exception as e:
             raise MyException(e,sys)
         return response
+ 

@@ -3,9 +3,10 @@ import os, sys
 from fastapi import HTTPException
 from langchain.prompts import PromptTemplate
 from connections.model_connection import GenerativeAIModel
-from utils.promts import parse_resume_prompt, questions_prompt
+from utils.promts import parse_resume_prompt, questions_prompt, mock_question_prompt, rating_prompt
 from utils.exception import MyException
 from utils.logger import logging
+from langchain.output_parsers import PydanticOutputParser
 import json
 
 # --------- Resume Parsing ---------
@@ -78,3 +79,29 @@ def get_bot_ans(question: str):
         raise HTTPException(status_code=400, detail=str(e))
     return response
 
+async def get_mock_questions( input_data: dict,parser=None):
+    """Generate interview questions with answers from resume info."""
+    parser = PydanticOutputParser(pydantic_object=parser)
+    prompt = PromptTemplate(
+        template = mock_question_prompt,
+        input_variables=["resume_text", "num_questions", "difficulty_level", "interview_type", "job_description"],
+        partial_variables={"format_instructions": parser.get_format_instructions()},
+    )
+    
+    
+    chain = prompt | model.model | parser
+    response = await chain.ainvoke(input_data)
+    return response
+
+   
+async def get_mock_rating(input_data:dict,parser):
+    parser = PydanticOutputParser(pydantic_object=parser)
+    prompt = PromptTemplate(
+        template = rating_prompt,
+        input_variables=["question","expected_answer","user_answer"],
+        partial_variables={"format_instructions": parser.get_format_instructions()},
+    )
+    
+    chain = prompt | model.model | parser
+    response = await chain.ainvoke(input_data)
+    return response

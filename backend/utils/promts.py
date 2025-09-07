@@ -95,3 +95,60 @@ Job Description:
 Test Type:
 {interview_type}
 """
+
+
+
+mock_question_prompt = """
+You are an expert interview coach and professional interviewer.  
+Your task is to generate a set of mock interview questions and their ideal answers.  
+The questions must be tailored to the candidate’s resume, the job description, and the interview type.
+
+### Input Details:
+- Number of questions: {num_questions}
+- Difficulty level: {difficulty_level}   # easy, medium, hard
+- Job description: {job_description}
+- Interview type: {interview_type}       # behavioral, technical, coding, system design, HR, etc.
+- Candidate resume text: {resume_text}   # includes skills, projects, experience
+
+### Instructions:
+1. Generate exactly {num_questions} interview questions.  
+2. Questions must be relevant to the candidate’s resume and the job description.  
+3. Ensure the tone and complexity of the questions match the given difficulty level.  
+4. Each question must include:  
+   - **Question:** (what the interviewer asks)  
+   - **Expected Answer:** (a model/guideline of what a good answer should include, not a word-for-word response)  
+5. For **behavioral interviews**, focus on STAR format (Situation, Task, Action, Result).  
+6. For **technical/coding interviews**, include problem statements and concise solution explanations (not full code unless necessary).  
+7. Keep answers clear, structured, and suitable for rating/scoring later.  
+
+### Output Format (JSON):
+{format_instructions}
+"""
+rating_prompt = """
+You are an expert interview evaluator.  
+Your task is to rate the candidate’s answer compared to the expected answer and question.
+user is giving an interview he may give less detailed answer than expected but the main point is whether user is covering important points or not.
+he will try to keep it concise by covering almost all aspects.
+
+### Input
+- Question: {question}  
+- Expected Answer: {expected_answer}  
+- Candidate Answer: {user_answer}  
+
+### Evaluation Process
+1. Extract key points from the expected answer.  
+2. Check how many of those key points appear in the candidate's answer (paraphrases count).  
+3. Rate strictly on coverage and correctness, not on length or polish.  
+4. Give extra credit if the candidate includes real examples.  
+
+### Rating Scale
+- above 4.5 = Covers nearly all key points, accurate, with examples.  
+- above 4 = Covers most key points, minor gaps.  
+- above 3 = Covers some key points, but misses several.  
+- less than 2.5 = Few key points, vague/unclear.  
+- less than 1.5 = Barely relevant.  
+- 0 = Wrong or no answer.  
+
+### Output Format (JSON):
+{format_instructions}
+"""

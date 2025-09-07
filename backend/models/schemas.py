@@ -25,7 +25,7 @@ class SingleQues(BaseModel):
 class QuestionListResponse(BaseModel):
     questions: List[SingleQues]
     
-class QuestionRequest(BaseModel):
+class QuestionRequstBase(BaseModel):
     num_questions: Annotated[
         int, 
         Field(default=10, ge=1, le=50, description="Number of questions to generate (1–50)")
@@ -34,13 +34,16 @@ class QuestionRequest(BaseModel):
         str, 
         Field(default="Medium", description="Difficulty level: Easy, Medium, or Hard")
     ]
-    target_companies: Annotated[
-        str, 
-        Field(default="FAANG,Goldman Sachs,Uber", description="Target companies for tailoring questions")
-    ]
     interview_type: Annotated[
         str, 
         Field(default="Technical", description="Type of interview: Technical, Behavioral, Case Study, Coding")
+    ]
+
+class QuestionRequest(QuestionRequstBase):
+
+    target_companies: Annotated[
+        str, 
+        Field(default="FAANG,Goldman Sachs,Uber", description="Target companies for tailoring questions")
     ]
     interview_description: Annotated[
         str, 
@@ -51,4 +54,26 @@ class QuestionRequest(BaseModel):
 class BotModel(BaseModel):
     query: str
 
-from pydantic import BaseModel
+class MockQuestion(BaseModel):
+    question: str
+    expected_answer: str
+
+class MockResponse(BaseModel):
+    questions: List[MockQuestion]
+
+class MockQuestionRequest(QuestionRequstBase):
+    job_description: Annotated[
+        str, 
+        Field(default="Software Engineer", description="Job role/title or description")
+    ]
+
+class RatingRequest(BaseModel):
+    question : str
+    expected_answer: str
+    user_answer: str
+    
+
+class RatingResponse(BaseModel):
+    rating: Annotated[float, Field(ge=0, le=5)]
+    better_answer: Annotated[str, Field(description="Suggested better answer user could give as per user answer,expected answer and question")]
+    feedback: Annotated[str, Field(description="Suggested feedback for user,key areas of improvements and suggestions and point out mistakes")]
