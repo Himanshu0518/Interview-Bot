@@ -96,7 +96,10 @@ function About() {
         <h2 className="text-3xl md:text-4xl font-extrabold mb-6">
           Ready to Boost Your Interview Skills?
         </h2>
-        <PracticeButton />
+        <PracticeButton path={"/test_setup"}/>
+           <div className="mt-4">
+             <PracticeButton description={"Start Your Mock Interview"} path={"/mock_setup"}/>
+           </div>
       </div>
 
       {/* About Developer Section */}

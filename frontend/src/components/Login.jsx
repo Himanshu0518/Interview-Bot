@@ -14,7 +14,7 @@ function Login() {
     const {register, handleSubmit} = useForm()
     const [error, setError] = useState("")
     const [isLoading, setIsLoading] = useState(false)
-    const resumeData = useSelector((state) => state.resume.data);
+    
 
     const login = async(data) => {
         setError("")
@@ -26,12 +26,11 @@ function Login() {
                 if(userData) dispatch(authLogin(userData));
                 navigate("/")
                 
-                if(resumeData.length) {
                     const resume = await TestServices.get_resume()
                     if (resume) {
                         dispatch(setResume(resume));
                     } 
-                }
+                
             }
         } catch (error) {
             setError(error.message)

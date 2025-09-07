@@ -17,28 +17,28 @@ function UploadResume() {
   const resumeData = useSelector((state) => state.resume?.data);
   
   // Fetch resume data on component mount
-  React.useEffect(() => {
-    const fetchResumeData = async () => {
-      try {
-        setIsLoading(true);
-        const resume = await TestServices.get_resume();
-        console.log("Fetched resume data:", resume); // Debug log
-        if (resume) {
-          dispatch(setResume(resume));
-        }
-      } catch (err) {
-        console.error("Error fetching resume:", err);
-        // Don't show error if user just doesn't have a resume yet
-        if (!err.message.includes("404")) {
-          setError("Failed to load resume data");
-        }
-      } finally {
-        setIsLoading(false);
-      }
-    };
+React.useEffect(() => {
+  const fetchResumeData = async () => {
+    setIsLoading(true);
+    try {
+      const resume = await TestServices.get_resume();
+      console.log("Fetched resume data:", resume);
 
-    fetchResumeData();
-  }, [dispatch]);
+      if (resume) {
+        dispatch(setResume(resume));
+      } else {
+        console.warn("No resume data found.");
+      }
+    } catch (error) {
+      console.error("Error fetching resume:", error);
+    } finally {
+      setIsLoading(false); // ✅ always stop loading
+    }
+  };
+
+  fetchResumeData();
+}, [dispatch]);
+
 
   const uploadResume = async (file) => {
     setError(null);

@@ -14,7 +14,7 @@ function Signup() {
     const [isLoading, setIsLoading] = useState(false)
     const dispatch = useDispatch()
     const {register, handleSubmit, formState: { errors }} = useForm()
-    const resumeData = useSelector((state) => state.resume.data);
+    
 
     const create = async(data) => {
         setError("")
@@ -26,17 +26,19 @@ function Signup() {
                 const userData = await AuthServices.getCurrentUser()
                 if(userData) dispatch(login(userData));
                 navigate("/")
-
-                if(resumeData.length) {
+   
                     const resume = await TestServices.get_resume()
                     if (resume) {
                         dispatch(setResume(resume));
                     }
-                }
+                
             }
-        } catch (error) {
+       } catch (error) {
+    console.log(error);
+
             setError(error.message)
-        } finally {
+}
+ finally {
             setIsLoading(false)
         }
     }

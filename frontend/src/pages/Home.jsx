@@ -1,5 +1,4 @@
-import React from 'react'
-import { ArrowRight } from 'lucide-react'
+import GuideCard from '../components/GuideCard'
 import PracticeButton from '../components/PracticeButton'
 function Home() {
   return (
@@ -13,37 +12,10 @@ function Home() {
           </div>
           
           <div className="grid md:grid-cols-3 gap-8">
-            <div className="relative">
-              <div className="bg-white rounded-2xl shadow-lg p-8 border border-gray-100 hover:shadow-xl transition-shadow duration-300">
-                <div className="w-16 h-16 bg-blue-600 rounded-xl flex items-center justify-center mb-6 mx-auto">
-                  <span className="text-2xl font-bold text-white">1</span>
-                </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-4 text-center">Upload Resume</h3>
-                <p className="text-gray-600 text-center">Upload your resume and let our AI analyze your skills, experience, and background</p>
-              </div>
-       <ArrowRight className="hidden md:block absolute top-1/2 -right-11 w-14 h-10 text-blue-600 transform -translate-y-1/2 drop-shadow-lg hover:text-blue-700 hover:scale-120 transition-all duration-300 ease-in-out" />
-            </div>
-            
-            <div className="relative">
-              <div className="bg-white rounded-2xl shadow-lg p-8 border border-gray-100 hover:shadow-xl transition-shadow duration-300">
-                <div className="w-16 h-16 bg-blue-600 rounded-xl flex items-center justify-center mb-6 mx-auto">
-                  <span className="text-2xl font-bold text-white">2</span>
-                </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-4 text-center">Practice Interviews</h3>
-                <p className="text-gray-600 text-center">Answer personalized questions generated specifically for your background and target roles</p>
-              </div>
-                <ArrowRight className="hidden md:block absolute top-1/2 -right-11 w-14 h-10 text-blue-600 transform -translate-y-1/2 drop-shadow-lg hover:text-blue-700 hover:scale-120 transition-all duration-300 ease-in-out" />
-             </div>
-            
-            <div>
-              <div className="bg-white rounded-2xl shadow-lg p-8 border border-gray-100 hover:shadow-xl transition-shadow duration-300">
-                <div className="w-16 h-16 bg-blue-600 rounded-xl flex items-center justify-center mb-6 mx-auto">
-                  <span className="text-2xl font-bold text-white">3</span>
-                </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-4 text-center">Get Feedback</h3>
-                <p className="text-gray-600 text-center">Receive detailed feedback and improvement suggestions to enhance your interview performance</p>
-              </div>
-            </div>
+          
+            <GuideCard name = "UploadResume" description = "Login/Signup and then upload your resume if not done already or if you want to change your resume." index = "1"/>
+            <GuideCard name = "Practice Interviews" description = "Answer personalized questions generated specifically for your background and target roles" index = "2"/>
+            <GuideCard name = "Get Feedback" description = "Receive detailed feedback and improvement suggestions to enhance your interview performance" index = "3" arrow={false}/>
           </div>
         </div>
       </div>
@@ -54,7 +26,11 @@ function Home() {
           <p className="text-xl text-gray-600 mb-10">
             Start practicing now and increase your chances of landing your dream job
           </p>
-           <PracticeButton />
+           <PracticeButton path={"/test_setup"}/>
+           <div className="mt-4">
+             <PracticeButton description={"Start Your Mock Interview"} path={"/mock_setup"}/>
+           </div>
+          
         </div>
       </div>
   

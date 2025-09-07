@@ -13,6 +13,8 @@ import { Provider } from "react-redux";
 import store from "./store/store";
 import { UploadResume, About, Home, Login, Signup, TestSetup, TestPage } from "./pages/index";
 import AuthLayout from "./layout/AuthLayout";
+import MockPage from "./pages/MockPage";
+import  MockSetUpPage from "./pages/MockSetUp";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -30,6 +32,8 @@ const router = createBrowserRouter(
         <Route path="upload_resume" element={<UploadResume />} />
        <Route path="/test_setup" element={<TestSetup />} />
        <Route path="/test" element={<TestPage />} />
+       <Route path = "/mock" element={<MockPage/>} />
+       <Route path = "/mock_setup" element={<MockSetUpPage/>} />
       </Route>
       
       {/* Catch-all */}
