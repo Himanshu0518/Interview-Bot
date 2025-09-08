@@ -28,15 +28,11 @@ def extract_json_from_text(text: str) -> dict:
 async def upload_resume(token_data:Annotated[TokenData, Depends(get_current_user)],file: UploadFile = File(...)):
     
     try:
-        result = await parse_resume(file)
+        result = await parse_resume(file, ParsedResume)
     except Exception as e:
         raise MyException(e, sys)
 
-    if isinstance(result, AIMessage):
-        extracted_info = extract_json_from_text(result.content)
-    else:
-        logging.info("Parsed resume dict directly received.")
-        extracted_info = result
+    extracted_info = result.model_dump() 
 
     db_resume_data = ParsedResumeDB(**extracted_info, username=token_data.username , user_id=token_data.user_id)
     current_resume = await client.find_one("Resume", {"user_id": token_data.user_id})

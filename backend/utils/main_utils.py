@@ -12,8 +12,10 @@ import json
 # --------- Resume Parsing ---------
 model = GenerativeAIModel()
 
-async def parse_resume(file):
+async def parse_resume(file, parser):
     """Extract text from resume and parse into structured JSON."""
+    parser = PydanticOutputParser(pydantic_object=parser)
+
     ext = file.filename.split(".")[-1].lower()
     temp_path = f"temp_resume.{ext}"
 
@@ -40,12 +42,17 @@ async def parse_resume(file):
         raise MyException(e, sys)
 
     # Create prompt
-    prompt = PromptTemplate.from_template(parse_resume_prompt)
-    final_prompt = prompt.format(resume_text=resume_text)
-
+   # prompt = PromptTemplate.from_template(parse_resume_prompt)
+    prompt = PromptTemplate(
+        template = parse_resume_prompt ,
+        input_variables=["resume_text"],
+        partial_variables = {"format_instructions": parser.get_format_instructions()}
+    )
+    
+    chain = prompt | model.model | parser
     # Call AI model
     try:
-        response = await model.get_response(final_prompt)  # async safe
+        response = await chain.ainvoke({"resume_text": resume_text}) # async safe
     except Exception as e:
         logging.exception("Error generating AI response for resume parsing")
         raise MyException(e, sys)
