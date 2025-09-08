@@ -44,6 +44,7 @@ function QuestionSection({ question, expected_answer }) {
     }
 
     const handleStartListening = () => {
+      console.log('Start listening...');
       SpeechRecognition.startListening({ continuous: true });
     };
 

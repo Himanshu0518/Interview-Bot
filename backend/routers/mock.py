@@ -52,7 +52,7 @@ async def get_questions(
 async def get_rating(token_data:Annotated[TokenData,Depends(get_current_user)],rating_query:RatingRequest):
 
     input_data = rating_query.model_dump()
-    print(input_data)
+   
     try:
         rating = await get_mock_rating(input_data,parser=RatingResponse)
     except Exception as e:
