@@ -125,14 +125,6 @@ function MockPage() {
             {/* Active Question */}
             {questions[activeIndex] && (
                 <div className="bg-white p-6 rounded-xl shadow-lg text-center">
-                    <h1 className="text-2xl font-bold text-gray-800 mb-6">
-                        {questions[activeIndex].question}
-                    </h1>
-
-                    <p className="text-lg text-gray-600 mb-4">
-                        Your Answer: {questions[activeIndex].answer}
-                    </p>
-
                     <QuestionSection
                         key={activeIndex}
                         question={questions[activeIndex].question}

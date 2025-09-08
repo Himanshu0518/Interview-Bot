@@ -16,8 +16,6 @@ function TestSetupPage() {
   const navigate = useNavigate();
 
   const onSubmit = (data) => {
-    // ensure target_companies is always array
-    console.log(data);
     navigate("/test", { state: data });
   };
 

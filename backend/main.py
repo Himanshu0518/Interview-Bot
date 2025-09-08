@@ -6,10 +6,9 @@ from routers.auth import auth_router
 from routers.mock import mock_router
 app = FastAPI()
 
-# ✅ Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "*"],  # React frontend URL, * for all origins (use specific in prod)
+    allow_origins=["http://localhost:5173", "https://interview-bot-wine.vercel.app/","https://interview-bot-gypk.vercel.app/"],  
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

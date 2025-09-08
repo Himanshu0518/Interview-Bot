@@ -85,8 +85,8 @@ function Login() {
                         <div className="space-y-5">
                             <div className="group">
                                 <Input
-                                    label="Username"
-                                    placeholder="Enter your username"
+                                    label="Username / Email"
+                                    placeholder="Enter your username or email"
                                     type="text"
                                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white/50 backdrop-blur-sm group-hover:bg-white/70"
                                     {...register("username", {

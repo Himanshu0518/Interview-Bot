@@ -58,7 +58,7 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]) -> Tok
         if username is None or user_id is None:
             raise credentials_exception
 
-        # ✅ Convert string back to ObjectId
+        
         user_db = await client.find_one("Users", {"_id": ObjectId(user_id)})
         if not user_db:
             raise credentials_exception
@@ -116,26 +116,33 @@ async def register_user(user_data: UserCreate):
 @auth_router.post("/token", response_model=Token)
 async def login_for_access_token(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
     try:
-        username = form_data.username
+        identifier = form_data.username   # could be username OR email
         password = form_data.password
 
-        user_db = await client.find_one("Users", {"username": username})
+        # Decide whether it's email or username
+        if "@" in identifier and "." in identifier:
+            query = {"email": identifier}
+        else:
+            query = {"username": identifier}
+
+        # Find user in DB
+        user_db = await client.find_one("Users", query)
         logging.info("user data received")
+
         if not user_db or not verify_password(password, user_db["hashed_password"]):
             raise HTTPException(
                 status_code=400,
                 detail={
                     "error": "Authentication Failed",
-                    "message": "The username or password you entered is incorrect. Please check your credentials and try again.",
+                    "message": "The username/email or password is incorrect.",
                     "code": 1001
                 }
             )
 
-
+        # Create JWT token
         access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)    
-
         access_token = create_access_token(
-            data={"sub": user_db["username"] , "user_id": str(user_db["_id"])},
+            data={"sub": user_db["username"], "user_id": str(user_db["_id"])},
             expires_delta=access_token_expires
         )
 
@@ -145,5 +152,3 @@ async def login_for_access_token(form_data: Annotated[OAuth2PasswordRequestForm,
         raise
     except Exception as e:
         raise MyException(e, sys)
-
-        

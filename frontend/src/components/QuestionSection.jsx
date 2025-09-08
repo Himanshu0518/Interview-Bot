@@ -111,20 +111,8 @@ function QuestionSection({ question, expected_answer }) {
         setMicPermission('granted');
         return true;
       } catch (error) {
-        console.error('Microphone access error:', error);
-        
-        if (error.name === 'NotAllowedError') {
-          setSpeechError('Microphone access denied. Please click the microphone icon in your browser\'s address bar and allow access.');
-          setMicPermission('denied');
-        } else if (error.name === 'NotFoundError') {
-          setSpeechError('No microphone found. Please connect a microphone and try again.');
-        } else if (error.name === 'NotSupportedError') {
-          setSpeechError('Microphone not supported in this browser or environment.');
-        } else {
-          setSpeechError(`Microphone error: ${error.message}`);
-        }
-        
-        return false;
+          setSpeechError(`Microphone error: ${error.message}`);        
+          return false;
       }
     };
 
@@ -170,8 +158,10 @@ function QuestionSection({ question, expected_answer }) {
         const recognition = SpeechRecognition.getRecognition();
         if (recognition) {
           recognition.onerror = (event) => {
-            console.error('Speech recognition error:', event.error);
-            handleSpeechError(event.error);
+           
+          setSpeechError(event.error);
+          setMicPermission('denied');
+          SpeechRecognition.stopListening();
           };
           
           recognition.onend = () => {
@@ -196,31 +186,6 @@ function QuestionSection({ question, expected_answer }) {
       }
     };
 
-    const handleSpeechError = (errorType) => {
-      switch (errorType) {
-        case 'not-allowed':
-          setSpeechError('Microphone access denied. Please allow microphone access and try again.');
-          setMicPermission('denied');
-          break;
-        case 'no-speech':
-          setSpeechError('No speech detected. Please try speaking louder or closer to your microphone.');
-          break;
-        case 'audio-capture':
-          setSpeechError('Microphone not available. Please check your microphone connection.');
-          break;
-        case 'network':
-          setSpeechError('Network error occurred. Please check your internet connection.');
-          break;
-        case 'service-not-allowed':
-          setSpeechError('Speech recognition service not allowed. Please use HTTPS.');
-          break;
-        default:
-          setSpeechError(`Speech recognition error: ${errorType}`);
-      }
-      
-      // Stop listening on error
-      SpeechRecognition.stopListening();
-    };
 
     const handleStopListening = () => {
       try {
@@ -276,20 +241,7 @@ function QuestionSection({ question, expected_answer }) {
 
     return (
       <div className="space-y-4">
-        {/* Connection Status */}
-        <div className="flex items-center gap-2 text-sm">
-          {window.isSecureContext ? (
-            <div className="flex items-center gap-1 text-green-600">
-              <CheckCircle className="w-4 h-4" />
-              <span>Secure connection</span>
-            </div>
-          ) : (
-            <div className="flex items-center gap-1 text-red-600">
-              <AlertCircle className="w-4 h-4" />
-              <span>Requires HTTPS</span>
-            </div>
-          )}
-        </div>
+
 
         {/* Error Display */}
         {speechError && (
@@ -380,22 +332,7 @@ function QuestionSection({ question, expected_answer }) {
             </div>
           )}
         </div>
-
-        {/* Debug Info (only in development) */}
-        {process.env.NODE_ENV === 'development' && (
-          <details className="text-xs text-gray-500 bg-gray-100 p-3 rounded">
-            <summary className="cursor-pointer font-medium">Debug Information</summary>
-            <div className="mt-2 space-y-1">
-              <p><strong>Permission:</strong> {micPermission || 'unknown'}</p>
-              <p><strong>Listening:</strong> {listening.toString()}</p>
-              <p><strong>Browser Support:</strong> {browserSupportsSpeechRecognition.toString()}</p>
-              <p><strong>Secure Context:</strong> {window.isSecureContext.toString()}</p>
-              <p><strong>Protocol:</strong> {window.location.protocol}</p>
-              <p><strong>User Agent:</strong> {navigator.userAgent.substring(0, 50)}...</p>
-              <p><strong>Speech Recognition Available:</strong> {('webkitSpeechRecognition' in window || 'SpeechRecognition' in window).toString()}</p>
-            </div>
-          </details>
-        )}
+        
       </div>
     );
   };
@@ -438,7 +375,7 @@ function QuestionSection({ question, expected_answer }) {
       <div className="mb-8">
         <h2 className="text-2xl font-bold text-gray-800 mb-4">Question</h2>
         <div className="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-500 shadow-sm">
-          <p className="text-lg text-gray-700">{question}</p>
+          <h1 className="text-lg font-bold text-gray-700">{question}</h1>
         </div>
       </div>
 

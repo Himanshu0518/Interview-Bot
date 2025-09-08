@@ -1,4 +1,3 @@
-
 import { useForm } from "react-hook-form";
 import Input from "../components/Input";
 import { useNavigate } from "react-router-dom";
@@ -16,8 +15,6 @@ function MockSetUpPage() {
   const navigate = useNavigate();
 
   const onSubmit = (data) => {
-    // ensure target_companies is always array
-    console.log(data);
     navigate("/mock", { state: data });
   };
 
