@@ -5,28 +5,35 @@ import {
 import { FaGithub, FaLinkedin } from "react-icons/fa"
 import { MdEmail } from "react-icons/md"
 import PracticeButton from '../components/PracticeButton'
+import Marquee from "react-fast-marquee";
 
 function About() {
+  const techs = [
+    { label: "Artificial Intelligence", desc: "LangChain-powered intelligent interview engine", color: "blue" },
+    { label: "React.js", desc: "Modern UI framework for a seamless experience", color: "green" },
+    { label: "MongoDB", desc: "Secure database to store progress & results", color: "purple" },
+    { label: "Security", desc: "Privacy-first design for safe interview practice", color: "red" },
+  ];
   return (
-    <div className="bg-gradient-to-b from-white via-gray-50 to-blue-50">
+    <div className="bg-gradient-to-b from-white via-gray-50 to-blue-50 dark:from-gray-800 dark:via-gray-700 dark:to-gray-950">
       
       {/* Hero Section */}
       <div className="max-w-6xl mx-auto py-16 text-center px-6">
         <h1 className="text-5xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600 mb-6">
           Welcome to InterviewBot
         </h1>
-        <p className="text-lg md:text-xl text-gray-700 max-w-3xl mx-auto">
+        <p className="text-lg md:text-xl text-gray-700 dark:text-gray-300 max-w-3xl mx-auto">
           Everything you need for effective interview preparation 🚀.  
           InterviewBot helps job seekers practice and improve their skills 
-          with <span className="font-semibold text-blue-600">personalized AI-driven questions</span> and instant feedback.
+          with <span className="font-semibold text-blue-600 dark:text-blue-400">personalized AI-driven questions</span> and instant feedback.
         </p>
       </div>
 
       {/* Target Audience Section */}
       <div className="py-12 px-6">
         <div className="max-w-6xl mx-auto text-center">
-          <h2 className="text-4xl font-bold text-gray-900 mb-4">Who Can Benefit</h2>
-          <p className="text-lg text-gray-600 mb-12">
+          <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">Who Can Benefit</h2>
+          <p className="text-lg text-gray-600 dark:text-gray-400 mb-12">
             InterviewBot is designed to help various types of job seekers
           </p>
 
@@ -50,13 +57,13 @@ function About() {
             ].map((item, i) => (
               <div 
                 key={i} 
-                className="bg-white rounded-2xl p-6 shadow-md hover:shadow-xl transition transform hover:-translate-y-2"
+                className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-md hover:shadow-xl transition transform hover:-translate-y-2"
               >
-                <div className="flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mx-auto mb-4">
+                <div className="flex items-center justify-center w-16 h-16 bg-blue-100 dark:bg-blue-900 rounded-full mx-auto mb-4">
                   {item.icon}
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">{item.title}</h3>
-                <p className="text-gray-600">{item.desc}</p>
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">{item.title}</h3>
+                <p className="text-gray-600 dark:text-gray-400">{item.desc}</p>
               </div>
             ))}
           </div>
@@ -64,32 +71,42 @@ function About() {
       </div>
 
       {/* Technology Section */}
-      <div className="py-16 px-6 bg-white">
-        <div className="max-w-6xl mx-auto text-center">
-          <h2 className="text-4xl font-bold text-gray-900 mb-6">Technology Stack</h2>
-          <p className="text-lg text-gray-600 mb-12">
-            Built with modern technologies for speed, scalability, and performance
-          </p>
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {[
-              { label: "Artificial Intelligence", desc: "LangChain-powered intelligent interview engine", color: "blue" },
-              { label: "React.js", desc: "Modern UI framework for a seamless experience", color: "green" },
-              { label: "MongoDB", desc: "Secure database to store progress & results", color: "purple" },
-              { label: "Security", desc: "Privacy-first design for safe interview practice", color: "orange" }
-            ].map((tech, i) => (
-              <div key={i} className="bg-gray-50 p-6 rounded-2xl shadow hover:shadow-xl transition">
-                <div className={`w-14 h-14 mx-auto mb-4 flex items-center justify-center rounded-full bg-${tech.color}-100`}>
-                  <span className={`text-${tech.color}-600 font-bold text-xl`}>
-                    {tech.label[0]}
-                  </span>
-                </div>
-                <h3 className="font-bold text-gray-900 mb-2">{tech.label}</h3>
-                <p className="text-sm text-gray-600">{tech.desc}</p>
+  <div className="py-16 px-6 bg-white dark:bg-gray-900">
+      <div className="max-w-6xl mx-auto text-center">
+        <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-6">
+          Technology Stack
+        </h2>
+        <p className="text-lg text-gray-600 dark:text-gray-400 mb-12">
+          Built with modern technologies for speed, scalability, and performance
+        </p>
+
+        {/* Marquee Section */}
+        <Marquee gradient={false} speed={60} pauseOnHover>
+          {techs.map((tech, i) => (
+            <div
+              key={i}
+              className="bg-gray-50 dark:bg-gray-800 p-6 rounded-2xl shadow hover:shadow-xl transition w-64 mx-4"
+            >
+              <div
+                className={`w-14 h-14 mx-auto mb-4 flex items-center justify-center rounded-full bg-${tech.color}-100 dark:bg-${tech.color}-900`}
+              >
+                <span
+                  className={`text-${tech.color}-600 dark:text-${tech.color}-300 font-bold text-xl`}
+                >
+                  {tech.label[0]}
+                </span>
               </div>
-            ))}
-          </div>
-        </div>
+              <h3 className="font-bold text-gray-900 dark:text-white mb-2">
+                {tech.label}
+              </h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                {tech.desc}
+              </p>
+            </div>
+          ))}
+        </Marquee>
       </div>
+    </div>
 
       {/* CTA Section */}
       <div className="py-16 bg-gradient-to-r from-blue-600 to-indigo-600 text-center text-white">
@@ -106,22 +123,22 @@ function About() {
       <div className="py-16 px-6">
         <div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-12 items-center">
           <div>
-            <h2 className="text-4xl font-extrabold text-gray-900 mb-6">
+            <h2 className="text-4xl font-extrabold text-gray-900 dark:text-white mb-6">
               About the Developer
             </h2>
-            <p className="text-lg text-gray-700 mb-4">
+            <p className="text-lg text-gray-700 dark:text-gray-300 mb-4">
               Hi! I'm <span className="font-semibold">Himanshu Singh</span>, a BTech ECE student at 
               <span className="font-semibold"> IIIT Una</span>, passionate about blending 
-              <span className="text-blue-600 font-medium"> AI</span> with real-world solutions 
+              <span className="text-blue-600 dark:text-blue-400 font-medium"> AI</span> with real-world solutions 
               to help people excel in their careers.
             </p>
-            <p className="text-gray-700 mb-4">
+            <p className="text-gray-700 dark:text-gray-300 mb-4">
               InterviewBot was born from my own challenges during interview prep.  
               I wanted to build a tool that provides personalized, AI-driven practice 
               to make preparation smarter and more effective.
             </p>
-            <div className="bg-blue-50 p-5 rounded-xl border-l-4 border-blue-600">
-              <ul className="space-y-2 text-gray-700">
+            <div className="bg-blue-50 dark:bg-gray-800 p-5 rounded-xl border-l-4 border-blue-600 dark:border-blue-400">
+              <ul className="space-y-2 text-gray-700 dark:text-gray-300">
                 <li><strong>🎓 Academic:</strong> BTech in ECE @ IIIT Una</li>
                 <li><strong>🤖 Interests:</strong> AI/ML, NLP, Software Development</li>
                 <li><strong>🚀 Goal:</strong> Make interview prep accessible to everyone</li>
@@ -129,19 +146,19 @@ function About() {
             </div>
           </div>
 
-          <div className="bg-white shadow-xl rounded-2xl p-6 flex flex-col gap-4">
-            <h3 className="text-2xl font-semibold text-gray-900 mb-2">📬 Get in Touch</h3>
-            <p className="text-gray-600 mb-4">Let's connect! Reach me here:</p>
+          <div className="bg-white dark:bg-gray-800 shadow-xl rounded-2xl p-6 flex flex-col gap-4">
+            <h3 className="text-2xl font-semibold text-gray-900 dark:text-white mb-2">📬 Get in Touch</h3>
+            <p className="text-gray-600 dark:text-gray-400 mb-4">Let's connect! Reach me here:</p>
 
-            <a href="mailto:himanshu.iiitu2027@gmail.com" className="flex items-center gap-3 text-gray-700 hover:text-blue-600 transition">
+            <a href="mailto:himanshu.iiitu2027@gmail.com" className="flex items-center gap-3 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition">
               <MdEmail size={24} /> himanshu.iiitu2027@gmail.com
             </a>
             <a href="https://www.linkedin.com/in/himanshu-singh23226/" target="_blank" rel="noreferrer"
-              className="flex items-center gap-3 text-gray-700 hover:text-blue-600 transition">
+              className="flex items-center gap-3 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition">
               <FaLinkedin size={24} /> linkedin.com/in/himanshu-singh23226
             </a>
             <a href="https://github.com/Himanshu0518" target="_blank" rel="noreferrer"
-              className="flex items-center gap-3 text-gray-700 hover:text-blue-600 transition">
+              className="flex items-center gap-3 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition">
               <FaGithub size={24} /> github.com/Himanshu0518
             </a>
           </div>

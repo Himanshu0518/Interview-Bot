@@ -7,6 +7,7 @@ import {
   createBrowserRouter,
   createRoutesFromElements,
 } from "react-router-dom";
+import {ThemeProvider} from "./components/ThemeProvider";
 import RootLayout from "./layout/RootLayout";
 import NotFound from "./components/NotFound";
 import { Provider } from "react-redux";
@@ -44,8 +45,10 @@ const router = createBrowserRouter(
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
+    <ThemeProvider defaultTheme="system" storageKey="theme-ui">
     <Provider store={store}>
       <RouterProvider router={router} />
     </Provider>
+    </ThemeProvider>
   </StrictMode>
 );

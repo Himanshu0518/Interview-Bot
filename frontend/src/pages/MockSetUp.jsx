@@ -15,11 +15,12 @@ function MockSetUpPage() {
   const navigate = useNavigate();
 
   const onSubmit = (data) => {
+   // console.log("setup data", data);
     navigate("/mock", { state: data });
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 px-4 py-8">
       <form
         onSubmit={handleSubmit(onSubmit)}
         className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-lg space-y-4"
@@ -60,7 +61,7 @@ function MockSetUpPage() {
           type="submit"
           className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white py-3 rounded-xl font-semibold transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
         >
-          Start Interview 🚀
+          Start Interview 
         </button>
       </form>
     </div>

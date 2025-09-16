@@ -1,34 +1,45 @@
 // HomeGuideCard.jsx
-import React from 'react'
-import { ArrowRight } from 'lucide-react'
+import React from 'react';
+import { ArrowRight } from 'lucide-react';
 
-function GuideCard({ name, description, index, arrow = true }) {
+function GuideCard({ name, description, index, arrow = true, image }) {
   return (
-    <div className="relative flex-shrink-0 w-80 h-80"> {/* fixed size */}
-      <div className="bg-white rounded-2xl shadow-md hover:shadow-2xl p-8 border border-gray-100 transition-all duration-300 hover:-translate-y-2 h-full flex flex-col justify-between">
-        
-        {/* Step Number */}
-        <div className="w-16 h-16 bg-blue-600 rounded-xl flex items-center justify-center mb-6 mx-auto shadow-md">
-          <span className="text-2xl font-bold text-white">{index}</span>
+    <div className="relative flex-shrink-0 w-80 h-96">
+      
+      {/* Card */}
+      <div 
+        className="relative rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 h-full flex flex-col justify-end"
+        style={{
+          backgroundImage: image ? `url(${image})` : 'none',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+        }}
+      >
+        {/* Overlay */}
+        <div className="absolute inset-0 bg-black/40 dark:bg-black/50"></div>
+
+        {/* Content */}
+        <div className="relative p-6 flex flex-col justify-end h-full text-center">
+          
+          {/* Step Number */}
+          <div className="absolute top-4 left-4 bg-blue-600 dark:bg-blue-500 text-white font-bold w-10 h-10 flex items-center justify-center rounded-full shadow-md">
+            {index}
+          </div>
+
+          {/* Text Container */}
+          <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-md rounded-xl p-4 shadow-md">
+            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">{name}</h3>
+            <p className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed">{description}</p>
+          </div>
         </div>
-
-        {/* Title */}
-        <h3 className="text-xl font-bold text-gray-900 mb-2 text-center">
-          {name}
-        </h3>
-
-        {/* Description */}
-        <p className="text-gray-600 text-center leading-relaxed flex-grow">
-          {description}
-        </p>
       </div>
 
       {/* Arrow between cards */}
       {arrow && (
-        <ArrowRight className="hidden md:block absolute top-1/2 -right-10 w-12 h-8 text-blue-500 transform -translate-y-1/2 drop-shadow-md transition-all duration-300" />
+        <ArrowRight className="hidden md:block absolute top-1/2 -right-10 w-12 h-8 text-blue-500 dark:text-blue-400 transform -translate-y-1/2 drop-shadow-md transition-all duration-300" />
       )}
     </div>
-  )
+  );
 }
 
-export default GuideCard
+export default GuideCard;

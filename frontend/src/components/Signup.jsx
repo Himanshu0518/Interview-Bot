@@ -3,7 +3,7 @@ import AuthServices from '../services/auth'
 import {Link ,useNavigate} from 'react-router-dom'
 import {login} from '../features/authSlice'
 import {Button, Input} from './index.js'
-import {useDispatch,useSelector} from 'react-redux'
+import {useDispatch} from 'react-redux'
 import {useForm} from 'react-hook-form'
 import TestServices from '../services/resume'
 import {setResume} from '../features/resumeSlice'
@@ -44,7 +44,7 @@ function Signup() {
     }
 
     return (
-        <div className='min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 via-white to-blue-50 px-4 py-8'>
+        <div className='min-h-screen flex items-center justify-center px-4 py-8'>
             {/* Background decoration */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
                 <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-purple-400/10 to-blue-400/10 rounded-full blur-3xl"></div>
@@ -52,7 +52,7 @@ function Signup() {
                 <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-br from-green-400/5 to-purple-400/5 rounded-full blur-3xl"></div>
             </div>
             
-            <div className="relative w-full max-w-lg">
+            <div className="relative w-full max-w-lg mx-auto dark:bg-gray-900">
                 {/* Main signup card */}
                 <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/20 p-8 hover:shadow-3xl transition-all duration-500">
                     {/* Header section */}

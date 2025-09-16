@@ -1,13 +1,15 @@
 import { useState, useEffect } from "react";
 import QuestionSection from "../components/QuestionSection";
 import MockServices from "../services/mock"
+import { useLocation } from "react-router-dom";
 
 function MockPage() {
     const [activeIndex, setActiveIndex] = useState(0);
     const [loading, setLoading] = useState(true);
     const [questions, setQuestions] = useState([]);
     const [error, setError] = useState(null);
-    
+    const location = useLocation();
+
     const { num_questions, difficulty_level, interview_type, job_description } = location.state || { 
         num_questions: 5, 
         difficulty_level: "Medium",
@@ -20,7 +22,7 @@ function MockPage() {
             try {
                 setLoading(true);
                 setError(null);
-                
+                // console.log(num_questions, difficulty_level, interview_type, job_description);
                 const response = await MockServices.get_mock_questions({ 
                     num_questions, 
                     difficulty_level, 
@@ -58,7 +60,7 @@ function MockPage() {
 
     if (loading) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
+            <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 dark:text-white px-4 py-8">
                 <div className="text-center">
                     <div className="relative">
                         <div className="w-16 h-16 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-4"></div>
