@@ -116,7 +116,11 @@ function MockPage() {
                         className={`px-4 py-2 rounded-lg transition-all duration-300 transform shadow-md
                             ${activeIndex === qIndex
                                 ? "bg-blue-600 text-white scale-105"
-                                : "bg-gray-200 hover:bg-gray-300"}`}
+                                : "bg-gray-200 hover:bg-gray-300"}
+                                dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600
+                        `}
+                        aria-current={activeIndex === qIndex ? "true" : "false"}
+                        aria-label={`Go to Question ${qIndex + 1}`}
                         onClick={() => setActiveIndex(qIndex)}
                     >
                         {`Question ${qIndex + 1}`}
@@ -126,7 +130,7 @@ function MockPage() {
 
             {/* Active Question */}
             {questions[activeIndex] && (
-                <div className="bg-white p-6 rounded-xl shadow-lg text-center">
+                <div className="bg-white p-6 rounded-xl shadow-lg text-center dark:bg-gray-800">
                     <QuestionSection
                         key={activeIndex}
                         question={questions[activeIndex].question}

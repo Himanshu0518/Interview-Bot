@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
-import { Mic, Square, RotateCcw, Star, AlertCircle, CheckCircle } from "lucide-react";
+import React, { useState, useCallback, useMemo } from 'react';
+
 import MockServices from '../services/mock';
 
-function QuestionSection({ question, expected_answer }) {
+
+
+function QuestionSection({ question = "Tell Me about Yourself", expected_answer = "" }) {
   const [userAnswer, setUserAnswer] = useState('');
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [rating, setRating] = useState(null);
@@ -36,307 +37,6 @@ function QuestionSection({ question, expected_answer }) {
     }
   };
 
-  const Dictaphone = () => {
-    const { transcript, listening, resetTranscript, browserSupportsSpeechRecognition } = useSpeechRecognition();
-    const [micPermission, setMicPermission] = useState(null);
-    const [speechError, setSpeechError] = useState(null);
-    const [isInitialized, setIsInitialized] = useState(false);
-
-    // Check environment and permissions on component mount
-    useEffect(() => {
-      initializeSpeechRecognition();
-    }, []);
-
-    // Update transcript to userAnswer when it changes
-    useEffect(() => {
-      if (transcript && listening === false && transcript.length > userAnswer.length) {
-        setUserAnswer(transcript);
-      }
-    }, [transcript, listening]);
-
-    const initializeSpeechRecognition = async () => {
-      // Check if we're in a secure context
-      if (!window.isSecureContext) {
-        setSpeechError('Speech recognition requires a secure connection (HTTPS)');
-        return;
-      }
-
-      // Check browser support
-      if (!browserSupportsSpeechRecognition) {
-        setSpeechError('Speech recognition is not supported in this browser. Please use Chrome, Edge, or Safari.');
-        return;
-      }
-
-      await checkMicrophonePermission();
-      setIsInitialized(true);
-    };
-
-    const checkMicrophonePermission = async () => {
-      try {
-        // Check if permissions API is available
-        if (navigator.permissions && navigator.permissions.query) {
-          const permissionStatus = await navigator.permissions.query({ name: 'microphone' });
-          setMicPermission(permissionStatus.state);
-          
-          // Listen for permission changes
-          permissionStatus.onchange = () => {
-            setMicPermission(permissionStatus.state);
-          };
-        } else {
-          // Fallback: assume we need to request permission
-          setMicPermission('prompt');
-        }
-      } catch (error) {
-        console.log('Permission API not supported or failed:', error);
-        setMicPermission('prompt');
-      }
-    };
-
-    const requestMicrophoneAccess = async () => {
-      try {
-        setSpeechError(null);
-        
-        // Request microphone access
-        const stream = await navigator.mediaDevices.getUserMedia({ 
-          audio: {
-            echoCancellation: true,
-            noiseSuppression: true,
-            autoGainControl: true
-          } 
-        });
-        
-        // Stop the stream immediately - we just needed permission
-        stream.getTracks().forEach(track => track.stop());
-        
-        setMicPermission('granted');
-        return true;
-      } catch (error) {
-          setSpeechError(`Microphone error: ${error.message}`);        
-          return false;
-      }
-    };
-
-    const handleStartListening = async () => {
-      setSpeechError(null);
-      
-      // Double-check browser support
-      if (!browserSupportsSpeechRecognition) {
-        setSpeechError('Speech recognition not supported');
-        return;
-      }
-
-      // Check secure context
-      if (!window.isSecureContext) {
-        setSpeechError('Speech recognition requires HTTPS');
-        return;
-      }
-      
-      // Handle permissions
-      if (micPermission === 'denied') {
-        setSpeechError('Microphone access denied. Please enable microphone permissions in your browser settings.');
-        return;
-      }
-      
-      // Request permission if needed
-      if (micPermission !== 'granted') {
-        const hasAccess = await requestMicrophoneAccess();
-        if (!hasAccess) return;
-      }
-
-      try {
-        // Clear any existing transcript
-        resetTranscript();
-        
-        // Configure and start recognition
-        SpeechRecognition.startListening({ 
-          continuous: true,
-          interimResults: true,
-          language: 'en-US'
-        });
-        
-        // Add error handling for speech recognition
-        const recognition = SpeechRecognition.getRecognition();
-        if (recognition) {
-          recognition.onerror = (event) => {
-           
-          setSpeechError(event.error);
-          setMicPermission('denied');
-          SpeechRecognition.stopListening();
-          };
-          
-          recognition.onend = () => {
-            // Auto-restart if we're still supposed to be listening
-            if (listening) {
-              setTimeout(() => {
-                if (listening && !speechError) {
-                  SpeechRecognition.startListening({ 
-                    continuous: true,
-                    interimResults: true,
-                    language: 'en-US'
-                  });
-                }
-              }, 100);
-            }
-          };
-        }
-        
-      } catch (error) {
-        console.error('Failed to start speech recognition:', error);
-        setSpeechError('Failed to start speech recognition. Please try again.');
-      }
-    };
-
-
-    const handleStopListening = () => {
-      try {
-        SpeechRecognition.stopListening();
-        if (transcript) {
-          setUserAnswer(transcript);
-        }
-      } catch (error) {
-        console.error('Error stopping speech recognition:', error);
-      }
-    };
-
-    const handleReset = () => {
-      try {
-        resetTranscript();
-        setUserAnswer('');
-        setSpeechError(null);
-        if (listening) {
-          SpeechRecognition.stopListening();
-        }
-      } catch (error) {
-        console.error('Error resetting speech recognition:', error);
-      }
-    };
-
-    // Show loading state while initializing
-    if (!isInitialized) {
-      return (
-        <div className="space-y-4">
-          <div className="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-500">
-            <p className="text-blue-700">Initializing speech recognition...</p>
-          </div>
-        </div>
-      );
-    }
-
-    // Show error if speech recognition is not supported
-    if (!browserSupportsSpeechRecognition) {
-      return (
-        <div className="space-y-4">
-          <div className="bg-red-50 p-4 rounded-lg border-l-4 border-red-500 flex items-start gap-3">
-            <AlertCircle className="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" />
-            <div>
-              <p className="text-red-700 font-medium">Speech Recognition Not Supported</p>
-              <p className="text-red-600 text-sm mt-1">
-                Please use Chrome, Edge, or Safari browser for speech recognition features.
-              </p>
-            </div>
-          </div>
-        </div>
-      );
-    }
-
-    return (
-      <div className="space-y-4">
-
-
-        {/* Error Display */}
-        {speechError && (
-          <div className="bg-red-50 p-4 rounded-lg border-l-4 border-red-500 flex items-start gap-3">
-            <AlertCircle className="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" />
-            <div className="flex-1">
-              <p className="text-red-700 font-medium">Speech Recognition Error</p>
-              <p className="text-red-600 text-sm mt-1">{speechError}</p>
-              {micPermission === 'denied' && (
-                <button
-                  onClick={requestMicrophoneAccess}
-                  className="mt-2 px-3 py-1 bg-red-500 text-white text-sm rounded hover:bg-red-600 transition"
-                >
-                  Request Permission Again
-                </button>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* Permission Status */}
-        {micPermission === 'prompt' && !speechError && (
-          <div className="bg-yellow-50 p-4 rounded-lg border-l-4 border-yellow-500">
-            <p className="text-yellow-700">
-              <strong>Microphone Permission Required:</strong> Click "Start Recording" to grant microphone access.
-            </p>
-          </div>
-        )}
-
-        {/* Controls */}
-        <div className="flex gap-3 flex-wrap">
-          <button
-            onClick={handleStartListening}
-            disabled={listening || micPermission === 'denied' || !window.isSecureContext}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium shadow-md transition ${
-              listening
-                ? 'bg-red-500 text-white cursor-not-allowed'
-                : micPermission === 'denied' || !window.isSecureContext
-                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                : 'bg-blue-500 hover:bg-blue-600 text-white'
-            }`}
-          >
-            <Mic className="w-5 h-5" />
-            {listening ? 'Recording...' : 'Start Recording'}
-          </button>
-
-          <button
-            onClick={handleStopListening}
-            disabled={!listening}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium shadow-md transition ${
-              !listening
-                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                : 'bg-orange-500 hover:bg-orange-600 text-white'
-            }`}
-          >
-            <Square className="w-5 h-5" />
-            Stop Recording
-          </button>
-
-          <button
-            onClick={handleReset}
-            className="flex items-center gap-2 px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg font-medium shadow-md transition"
-          >
-            <RotateCcw className="w-5 h-5" />
-            Reset
-          </button>
-        </div>
-
-        {/* Listening Indicator */}
-        {listening && (
-          <div className="flex items-center gap-2 text-red-600 animate-pulse bg-red-50 p-3 rounded-lg border border-red-200">
-            <Mic className="w-4 h-4" />
-            <span className="font-medium">🔴 Recording... Speak clearly into your microphone</span>
-          </div>
-        )}
-
-        {/* Transcript Display */}
-        <div className="bg-gray-50 p-4 rounded-lg shadow-sm border">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Live Transcript:
-          </label>
-          <div className="min-h-[80px] p-3 bg-white border rounded-md text-gray-800 whitespace-pre-wrap">
-            {transcript || "🎤 Your speech will appear here as you speak..."}
-          </div>
-          {transcript && (
-            <div className="mt-2 text-xs text-gray-500">
-              Words detected: {transcript.split(' ').filter(word => word.length > 0).length}
-            </div>
-          )}
-        </div>
-        
-      </div>
-    );
-  };
-
   const handleSubmit = async () => {
     if (!userAnswer.trim()) {
       alert('Please provide an answer before submitting!');
@@ -346,45 +46,60 @@ function QuestionSection({ question, expected_answer }) {
     await getrating(userAnswer);
   };
 
-  const handleRetry = () => {
+  const handleRetry = useCallback(() => {
     setIsSubmitted(false);
     setRating(null);
     setUserAnswer('');
     setImprovedAns('');
     setFeedback('');
     setError(null);
-  };
+  }, []);
 
-  const getRatingColor = (rating) => {
+  const getRatingColor = useCallback((rating) => {
     if (rating >= 4) return 'text-green-600';
     if (rating >= 3) return 'text-yellow-500';
     return 'text-red-600';
-  };
+  }, []);
 
-  const getRatingText = (rating) => {
+  const getRatingText = useCallback((rating) => {
     if (rating >= 4.5) return 'Excellent!';
     else if (rating >= 3.8) return 'Good job!';
     else if (rating >= 2.8) return 'Not bad!';
     else if (rating >= 2) return 'Needs improvement';
     return 'Try again!';
-  };
+  }, []);
+
+  // Memoized optimized text change handler
+  const handleTextChange = useCallback((e) => {
+    setUserAnswer(e.target.value);
+  }, []);
+
+  // Memoized submit button state
+  const isSubmitDisabled = useMemo(() => {
+    return userAnswer.trim().length < 10;
+  }, [userAnswer]);
 
   return (
-    <div className="max-w-3xl mx-auto p-8 bg-gradient-to-br from-white via-gray-50 to-blue-50 rounded-2xl shadow-xl border">
+    <div className="max-w-4xl mx-auto p-6 bg-white rounded-2xl shadow-lg border border-gray-200 dark:bg-gray-800 dark:border-gray-700 dark:text-white">
       {/* Question Display */}
       <div className="mb-8">
-        <h2 className="text-2xl font-bold text-gray-800 mb-4">Question</h2>
-        <div className="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-500 shadow-sm">
-          <h1 className="text-lg font-bold text-gray-700">{question}</h1>
+        <h2 className="text-2xl font-bold text-gray-900 mb-4">Question</h2>
+        <div className="bg-blue-50 p-6 rounded-xl border border-blue-200 shadow-sm">
+          <h1 className="text-lg font-semibold text-gray-800">{question}</h1>
         </div>
       </div>
 
       {/* Answer Input Section */}
       {!isSubmitted && (
         <div className="mb-8 space-y-6">
-          <h3 className="text-xl font-semibold text-gray-800">Your Answer</h3>
+          <h3 className="text-xl font-semibold text-gray-900">Your Answer</h3>
 
-          <Dictaphone />
+          {/* Speech Recognition Component */}
+          <Dictaphone 
+            userAnswer={userAnswer}
+            setUserAnswer={setUserAnswer}
+            isSubmitted={isSubmitted}
+          />
 
           {/* Text Input Alternative */}
           <div>
@@ -393,20 +108,26 @@ function QuestionSection({ question, expected_answer }) {
             </label>
             <textarea
               value={userAnswer}
-              onChange={(e) => setUserAnswer(e.target.value)}
-              placeholder="Type your answer here or use speech recognition above..."
-              className="w-full h-32 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none shadow-sm"
+              onChange={handleTextChange}
+              placeholder="Type your answer here..."
+              className="w-full h-32 p-4 bg-white border border-gray-300 rounded-xl 
+                         focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
+                         text-gray-900 placeholder-gray-500 resize-none
+                         transition-colors duration-200 shadow-sm"
             />
-          </div>
+            <div className="mt-2 text-xs text-gray-500">
+              Minimum 10 characters required • Current: {userAnswer.length}
+            </div>
+          </div> 
 
           {/* Submit Button */}
           <button
             onClick={handleSubmit}
-            disabled={!userAnswer.trim()}
-            className={`w-full py-3 px-6 rounded-lg font-semibold text-white shadow-md transition ${
-              userAnswer.trim()
-                ? 'bg-green-500 hover:bg-green-600'
-                : 'bg-gray-300 cursor-not-allowed'
+            disabled={isSubmitDisabled}
+            className={`w-full py-3 px-6 rounded-xl font-semibold shadow-sm transition-all duration-200 ${
+              isSubmitDisabled
+                ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                : "bg-green-500 hover:bg-green-600 text-white hover:shadow-md active:scale-[0.98]"
             }`}
           >
             Submit Answer
@@ -416,9 +137,9 @@ function QuestionSection({ question, expected_answer }) {
 
       {/* Expected Answer Section */}
       {isSubmitted && (
-        <details className="group bg-white border border-gray-200 rounded-xl shadow-sm p-4 transition hover:shadow-md mb-6">
-          <summary className="flex items-center justify-between cursor-pointer list-none">
-            <h3 className="text-lg md:text-xl font-semibold text-gray-800">
+        <details className="group bg-white border border-gray-200 rounded-xl shadow-sm mb-6 transition-shadow hover:shadow-md">
+          <summary className="flex items-center justify-between cursor-pointer list-none p-4">
+            <h3 className="text-lg font-semibold text-gray-800">
               Expected Answer
             </h3>
             <svg
@@ -432,8 +153,10 @@ function QuestionSection({ question, expected_answer }) {
             </svg>
           </summary>
 
-          <div className="mt-3 bg-green-50 p-4 rounded-lg border border-green-200 shadow-inner">
-            <p className="text-gray-700 leading-relaxed">{expected_answer}</p>
+          <div className="px-4 pb-4">
+            <div className="bg-green-50 p-4 rounded-xl border border-green-200">
+              <p className="text-gray-700 leading-relaxed">{expected_answer}</p>
+            </div>
           </div>
         </details>
       )}
@@ -443,11 +166,11 @@ function QuestionSection({ question, expected_answer }) {
         <div className="space-y-6">
           {/* Error State */}
           {error && (
-            <div className="bg-red-50 p-4 rounded-lg border-l-4 border-red-500">
+            <div className="bg-red-50 p-4 rounded-xl border border-red-200">
               <p className="text-red-700 font-medium">Error: {error}</p>
               <button
                 onClick={handleRetry}
-                className="mt-2 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition"
+                className="mt-2 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
               >
                 Try Again
               </button>
@@ -456,7 +179,7 @@ function QuestionSection({ question, expected_answer }) {
 
           {/* Loading State */}
           {isLoading && (
-            <div className="text-center py-8 bg-white shadow-md rounded-lg border">
+            <div className="text-center py-8 bg-white shadow-sm rounded-xl border border-gray-200">
               <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-blue-500 mx-auto mb-4"></div>
               <p className="text-gray-600">Evaluating your answer...</p>
             </div>
@@ -468,7 +191,7 @@ function QuestionSection({ question, expected_answer }) {
               {/* Your Answer */}
               <div>
                 <h3 className="text-xl font-semibold text-gray-800 mb-3">Your Answer</h3>
-                <div className="bg-gray-50 p-4 rounded-lg shadow-sm border">
+                <div className="bg-gray-50 p-4 rounded-xl border border-gray-200">
                   <p className="text-gray-700 whitespace-pre-wrap">{userAnswer}</p>
                 </div>
               </div>
@@ -476,7 +199,7 @@ function QuestionSection({ question, expected_answer }) {
               {/* Rating */}
               <div>
                 <h3 className="text-xl font-semibold text-gray-800 mb-3">Rating</h3>
-                <div className="bg-white p-6 rounded-lg shadow-md border">
+                <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
                   <div className="text-center">
                     <div className={`text-4xl font-bold mb-2 flex items-center justify-center gap-2 ${getRatingColor(rating)}`}>
                       {rating}/5
@@ -491,7 +214,7 @@ function QuestionSection({ question, expected_answer }) {
 
               {/* Note */}
               {feedback && (
-                <div className="flex items-start gap-3 p-4 bg-amber-50 border border-amber-200 rounded-xl shadow-sm">
+                <div className="flex items-start gap-3 p-4 bg-amber-50 border border-amber-200 rounded-xl">
                   <svg
                     className="w-5 h-5 text-amber-500 mt-0.5 flex-shrink-0"
                     xmlns="http://www.w3.org/2000/svg"
@@ -511,7 +234,7 @@ function QuestionSection({ question, expected_answer }) {
               {feedback && (
                 <div>
                   <h3 className="text-xl font-semibold text-gray-800 mb-3">Feedback</h3>
-                  <div className="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-500 shadow-sm">
+                  <div className="bg-blue-50 p-4 rounded-xl border border-blue-200">
                     <p className="text-gray-700 whitespace-pre-wrap">{feedback}</p>
                   </div>
                 </div>
@@ -521,7 +244,7 @@ function QuestionSection({ question, expected_answer }) {
               {improvedAns && (
                 <div>
                   <h3 className="text-xl font-semibold text-gray-800 mb-3">Improved Answer</h3>
-                  <div className="bg-purple-50 p-4 rounded-lg border-l-4 border-purple-500 shadow-sm">
+                  <div className="bg-purple-50 p-4 rounded-xl border border-purple-200">
                     <p className="text-gray-700 whitespace-pre-wrap">{improvedAns}</p>
                   </div>
                 </div>
@@ -530,7 +253,7 @@ function QuestionSection({ question, expected_answer }) {
               {/* Retry Button */}
               <button
                 onClick={handleRetry}
-                className="w-full py-3 px-6 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-semibold shadow-md transition"
+                className="w-full py-3 px-6 bg-blue-500 hover:bg-blue-600 text-white rounded-xl font-semibold shadow-sm transition-all duration-200 hover:shadow-md active:scale-[0.98]"
               >
                 Try Another Question
               </button>
