@@ -1,15 +1,13 @@
 import React, { useState, useEffect } from "react";
 import TestServices from "../services/resume";
-import { useLocation } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
-
+import { useLocation, useNavigate } from "react-router-dom";
+import {RotateCcw} from "lucide-react";
 function TestPage() {
   const location = useLocation();
 
-  // Fixed: Match the variable names from TestSetupPage
   const { num_questions, difficulty_level, target_companies, interview_type, interview_description } = location.state || { 
-    num_questions: 10, // Match TestSetupPage default
-    difficulty_level: "Medium", // Match TestSetupPage default
+    num_questions: 10,
+    difficulty_level: "Medium",
     target_companies: "FAANG",
     interview_type: "Technical",
     interview_description: "Software Engineer"
@@ -23,7 +21,7 @@ function TestPage() {
   const [score, setScore] = useState(0);
   const [error, setError] = useState(null);
 
-  // Fetch questions from API
+  // Fetch questions
   useEffect(() => {
     const fetchQuestions = async () => {
       try {
@@ -31,8 +29,8 @@ function TestPage() {
         setError(null);
 
         const response = await TestServices.get_questions({
-          num_questions: num_questions,
-          difficulty_level: difficulty_level,
+          num_questions,
+          difficulty_level,
           target_companies: target_companies || ["FAANG"],
           interview_type: interview_type || "Technical",
           interview_description: interview_description || "Software Engineer",
@@ -76,9 +74,9 @@ function TestPage() {
 
   const getScoreColor = () => {
     const percentage = (score / questions.length) * 100;
-    if (percentage >= 80) return "text-green-600";
-    if (percentage >= 60) return "text-yellow-600";
-    return "text-red-600";
+    if (percentage >= 80) return "text-green-600 dark:text-green-400";
+    if (percentage >= 60) return "text-yellow-600 dark:text-yellow-400";
+    return "text-red-600 dark:text-red-400";
   };
 
   const getScoreEmoji = () => {
@@ -90,18 +88,18 @@ function TestPage() {
     return "💪 Keep it up! ";
   };
 
-  // Loading state
+  // Loading screen
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100 via-indigo-200 to-blue-300 dark:from-gray-900 dark:via-gray-950 dark:to-black">
         <div className="text-center">
           <div className="relative">
             <div className="w-16 h-16 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-4"></div>
           </div>
-          <p className="text-xl font-semibold text-gray-700 animate-pulse">
+          <p className="text-xl font-semibold text-gray-700 dark:text-gray-200 animate-pulse">
             ⚡ Generating your questions...
           </p>
-          <p className="text-sm text-gray-500 mt-2">
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
             Difficulty: <span className="capitalize font-medium">{difficulty_level.toLowerCase()}</span> | 
             Questions: <span className="font-medium">{num_questions}</span>
           </p>
@@ -110,14 +108,14 @@ function TestPage() {
     );
   }
 
-  // Error state
+  // Error screen
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-red-50 to-pink-100">
-        <div className="max-w-md mx-auto p-8 bg-white rounded-2xl shadow-lg text-center">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-red-50 to-pink-100 dark:from-red-950 dark:to-gray-900">
+        <div className="max-w-md mx-auto p-8 bg-white dark:bg-gray-800 rounded-2xl shadow-lg text-center">
           <div className="text-6xl mb-4">😞</div>
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">Oops!</h2>
-          <p className="text-gray-600 mb-6">{error}</p>
+          <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-4">Oops!</h2>
+          <p className="text-gray-600 dark:text-gray-300 mb-6">{error}</p>
           <button
             onClick={() => window.location.reload()}
             className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors"
@@ -129,45 +127,42 @@ function TestPage() {
     );
   }
 
-  // Main content
+  // Main page
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-black dark:text-gray-300 py-8">
       <div className="max-w-4xl mx-auto px-4">
         {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-800 mb-2">
+          <h1 className="text-4xl font-bold text-gray-800 dark:text-gray-200 mb-2">
             📝 Knowledge Test
           </h1>
-          <div className="flex justify-center items-center gap-4 text-sm text-gray-600">
-            <span className="bg-white px-3 py-1 rounded-full shadow-sm">
+          <div className="flex justify-center items-center gap-4 text-sm text-gray-600 dark:text-gray-300">
+            <span className="bg-white dark:bg-gray-800 dark:text-gray-200 px-3 py-1 rounded-full shadow-sm">
               <span className="capitalize font-medium">{difficulty_level}</span> Level
             </span>
-            <span className="bg-white px-3 py-1 rounded-full shadow-sm">
+            <span className="bg-white dark:bg-gray-800 dark:text-gray-200 px-3 py-1 rounded-full shadow-sm">
               {questions.length} Questions
             </span>
           </div>
         </div>
 
-        {/* Questions Container */}
-        <div className="bg-white rounded-2xl shadow-xl p-8">
+        {/* Questions */}
+        <div className="bg-white dark:bg-gray-900 dark:text-gray-100 rounded-2xl shadow-xl p-8">
           {questions.length === 0 ? (
             <div className="text-center py-12">
               <div className="text-6xl mb-4">📚</div>
-              <p className="text-xl text-gray-500">No questions available</p>
+              <p className="text-xl text-gray-500 dark:text-gray-400">No questions available</p>
             </div>
           ) : (
             <div className="space-y-8">
               {questions.map((q, qIndex) => (
-                <div 
-                  key={qIndex} 
-                  className="border-b border-gray-100 last:border-b-0 pb-8 last:pb-0"
-                >
+                <div key={qIndex} className="border-b border-gray-100 dark:border-gray-700 last:border-b-0 pb-8 last:pb-0">
                   {/* Question */}
                   <div className="flex items-start gap-4 mb-6">
                     <span className="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-semibold text-sm">
                       {qIndex + 1}
                     </span>
-                    <h3 className="text-lg font-semibold text-gray-800 leading-relaxed">
+                    <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 leading-relaxed">
                       {q.question}
                     </h3>
                   </div>
@@ -178,22 +173,23 @@ function TestPage() {
                       const isSelected = answers[qIndex] === optionIndex;
                       const isCorrect = optionIndex === q.correct_option;
                       const isWrong = submitted && isSelected && !isCorrect;
-                      
-                      let optionClasses = "flex items-center p-4 border-2 rounded-xl cursor-pointer transition-all duration-200 hover:shadow-md ";
-                      
+
+                      let optionClasses =
+                        "flex items-center p-4 border-2 rounded-xl cursor-pointer transition-all duration-200 hover:shadow-md ";
+
                       if (submitted) {
                         if (isCorrect) {
-                          optionClasses += "bg-green-50 border-green-400 text-green-800 shadow-sm";
+                          optionClasses += "bg-green-50 dark:bg-green-900 border-green-400 text-green-800 dark:text-green-200 shadow-sm";
                         } else if (isWrong) {
-                          optionClasses += "bg-red-50 border-red-400 text-red-800 shadow-sm";
+                          optionClasses += "bg-red-50 dark:bg-red-900 border-red-400 text-red-800 dark:text-red-200 shadow-sm";
                         } else {
-                          optionClasses += "bg-gray-50 border-gray-200 text-gray-600";
+                          optionClasses += "bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-400";
                         }
                       } else {
                         if (isSelected) {
-                          optionClasses += "bg-blue-50 border-blue-400 text-blue-800 shadow-sm";
+                          optionClasses += "bg-blue-50 dark:bg-blue-900 border-blue-400 text-blue-800 dark:text-blue-200 shadow-sm";
                         } else {
-                          optionClasses += "bg-white border-gray-200 text-gray-700 hover:border-blue-300 hover:bg-blue-50";
+                          optionClasses += "bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:border-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900";
                         }
                       }
 
@@ -210,10 +206,10 @@ function TestPage() {
                           />
                           <span className="flex-grow font-medium">{option}</span>
                           {submitted && isCorrect && (
-                            <span className="ml-2 text-green-600">✓</span>
+                            <span className="ml-2 text-green-600 dark:text-green-300">✓</span>
                           )}
                           {submitted && isWrong && (
-                            <span className="ml-2 text-red-600">✗</span>
+                            <span className="ml-2 text-red-600 dark:text-red-300">✗</span>
                           )}
                         </label>
                       );
@@ -222,9 +218,9 @@ function TestPage() {
 
                   {/* Explanation */}
                   {submitted && q.explanation && (
-                    <div className="ml-12 mt-4 p-4 bg-blue-50 rounded-lg border-l-4 border-blue-400">
-                      <p className="text-sm text-blue-800">
-                        <strong className="text-blue-900">💡 Explanation:</strong> {q.explanation}
+                    <div className="ml-12 mt-4 p-4 bg-blue-50 dark:bg-blue-900 rounded-lg border-l-4 border-blue-400 dark:border-blue-600">
+                      <p className="text-sm text-blue-800 dark:text-blue-200">
+                        <strong className="text-blue-900 dark:text-blue-100">💡 Explanation:</strong> {q.explanation}
                       </p>
                     </div>
                   )}
@@ -233,8 +229,8 @@ function TestPage() {
             </div>
           )}
 
-          {/* Submit Button / Results */}
-          <div className="mt-8 pt-6 border-t border-gray-100">
+          {/* Submit / Results */}
+          <div className="mt-8 pt-6 border-t border-gray-100 dark:border-gray-700">
             {!submitted && questions.length > 0 ? (
               <div className="text-center">
                 <button
@@ -242,34 +238,34 @@ function TestPage() {
                   disabled={Object.keys(answers).length < questions.length}
                   className={`px-8 py-3 rounded-xl font-semibold text-lg transition-all duration-200 ${
                     Object.keys(answers).length < questions.length
-                      ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                      ? "bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed"
                       : "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg hover:shadow-xl transform hover:scale-105"
                   }`}
                 >
                   Submit Test {getScoreEmoji()}
                 </button>
-                <p className="text-sm text-gray-500 mt-2">
+                <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
                   {Object.keys(answers).length} of {questions.length} questions answered
                 </p>
               </div>
             ) : submitted && (
               <div className="text-center">
-                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-8 mb-6">
+                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-900 rounded-2xl p-8 mb-6">
                   <div className="text-6xl mb-4">{getScoreEmoji()}</div>
-                  <h2 className="text-3xl font-bold text-gray-800 mb-2">Test Completed!</h2>
+                  <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-2">Test Completed!</h2>
                   <p className={`text-2xl font-bold mb-4 ${getScoreColor()}`}>
                     Score: {score} / {questions.length}
                   </p>
-                  <div className="w-full bg-gray-200 rounded-full h-3 mb-4">
+                  <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3 mb-4">
                     <div
                       className={`h-3 rounded-full transition-all duration-500 ${
-                        (score / questions.length) * 100 >= 80 ? 'bg-green-500' :
-                        (score / questions.length) * 100 >= 60 ? 'bg-yellow-500' : 'bg-red-500'
+                        (score / questions.length) * 100 >= 80 ? "bg-green-500" :
+                        (score / questions.length) * 100 >= 60 ? "bg-yellow-500" : "bg-red-500"
                       }`}
                       style={{ width: `${(score / questions.length) * 100}%` }}
                     ></div>
                   </div>
-                  <p className="text-gray-600">
+                  <p className="text-gray-600 dark:text-gray-300">
                     {((score / questions.length) * 100).toFixed(1)}% Correct
                   </p>
                 </div>
@@ -278,7 +274,7 @@ function TestPage() {
                   onClick={() => Navigate('/test_setup')}
                   className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
                 >
-                  Take Another Test 🔄
+                  Take Another Test <RotateCcw className="inline-block ml-2 w-5 h-5" />
                 </button>
               </div>
             )}

@@ -282,9 +282,9 @@ const Dictaphone = React.memo(({ userAnswer, setUserAnswer, isSubmitted }) => {
       )}
 
       {/* Transcript Display */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-        <div className="px-4 py-3 bg-gray-50 border-b border-gray-200">
-          <label className="text-sm font-medium text-gray-700">
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden dark:bg-gray-800 dark:border-gray-700 dark:text-white">
+        <div className="px-4 py-3 bg-gray-50 border-b border-gray-200  dark:bg-gray-700 dark:border-gray-600 ">
+          <label className="text-sm font-medium text-gray-700 dark:text-white">
             Live Transcript
           </label>
         </div>
@@ -292,7 +292,7 @@ const Dictaphone = React.memo(({ userAnswer, setUserAnswer, isSubmitted }) => {
           <div className="min-h-[100px] text-gray-800 whitespace-pre-wrap">
             {transcript || (
               <span className="text-gray-500 italic">
-                🎤 Your speech will appear here as you speak...
+                 Your speech will appear here as you speak...
               </span>
             )}
           </div>

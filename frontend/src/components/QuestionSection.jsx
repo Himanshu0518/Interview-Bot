@@ -1,8 +1,8 @@
 import React, { useState, useCallback, useMemo } from 'react';
 
 import MockServices from '../services/mock';
-
-
+import Dictaphone from './Dictaphone';
+import { Star } from 'lucide-react';
 
 function QuestionSection({ question = "Tell Me about Yourself", expected_answer = "" }) {
   const [userAnswer, setUserAnswer] = useState('');
@@ -80,19 +80,19 @@ function QuestionSection({ question = "Tell Me about Yourself", expected_answer 
   }, [userAnswer]);
 
   return (
-    <div className="max-w-4xl mx-auto p-6 bg-white rounded-2xl shadow-lg border border-gray-200 dark:bg-gray-800 dark:border-gray-700 dark:text-white">
+    <div className="max-w-4xl mx-auto p-6 bg-white rounded-2xl shadow-lg border border-gray-200 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-300">
       {/* Question Display */}
-      <div className="mb-8">
-        <h2 className="text-2xl font-bold text-gray-900 mb-4">Question</h2>
-        <div className="bg-blue-50 p-6 rounded-xl border border-blue-200 shadow-sm">
+      {/* <div className="mb-8">
+        <h2 className="text-2xl font-bold">Question</h2>
+        <div className="bg-blue-50 p-6 rounded-xl border border-blue-200 shadow-sm dark:bg-blue-900 dark:border-blue-700">
           <h1 className="text-lg font-semibold text-gray-800">{question}</h1>
         </div>
-      </div>
+      </div> */}
 
       {/* Answer Input Section */}
       {!isSubmitted && (
         <div className="mb-8 space-y-6">
-          <h3 className="text-xl font-semibold text-gray-900">Your Answer</h3>
+          <h3 className="text-xl font-semibold">Your Answer</h3>
 
           {/* Speech Recognition Component */}
           <Dictaphone 
@@ -113,7 +113,8 @@ function QuestionSection({ question = "Tell Me about Yourself", expected_answer 
               className="w-full h-32 p-4 bg-white border border-gray-300 rounded-xl 
                          focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
                          text-gray-900 placeholder-gray-500 resize-none
-                         transition-colors duration-200 shadow-sm"
+                         transition-colors duration-200 shadow-sm
+                         dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
             />
             <div className="mt-2 text-xs text-gray-500">
               Minimum 10 characters required • Current: {userAnswer.length}
@@ -137,7 +138,7 @@ function QuestionSection({ question = "Tell Me about Yourself", expected_answer 
 
       {/* Expected Answer Section */}
       {isSubmitted && (
-        <details className="group bg-white border border-gray-200 rounded-xl shadow-sm mb-6 transition-shadow hover:shadow-md">
+        <details className="group bg-white border border-gray-200 rounded-xl shadow-sm mb-6 transition-shadow hover:shadow-md dark:bg-gray-300 dark:border-gray-200">
           <summary className="flex items-center justify-between cursor-pointer list-none p-4">
             <h3 className="text-lg font-semibold text-gray-800">
               Expected Answer
@@ -190,16 +191,16 @@ function QuestionSection({ question = "Tell Me about Yourself", expected_answer 
             <>
               {/* Your Answer */}
               <div>
-                <h3 className="text-xl font-semibold text-gray-800 mb-3">Your Answer</h3>
-                <div className="bg-gray-50 p-4 rounded-xl border border-gray-200">
+                <h3 className="text-xl font-semibold  mb-3">Your Answer</h3>
+                <div className="bg-gray-100 p-4 rounded-xl border border-gray-200">
                   <p className="text-gray-700 whitespace-pre-wrap">{userAnswer}</p>
                 </div>
               </div>
 
               {/* Rating */}
               <div>
-                <h3 className="text-xl font-semibold text-gray-800 mb-3">Rating</h3>
-                <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                <h3 className="text-xl font-semibold  mb-3">Rating</h3>
+                <div className="bg-gray-100 p-6 rounded-xl shadow-sm border border-gray-200">
                   <div className="text-center">
                     <div className={`text-4xl font-bold mb-2 flex items-center justify-center gap-2 ${getRatingColor(rating)}`}>
                       {rating}/5
@@ -233,7 +234,7 @@ function QuestionSection({ question = "Tell Me about Yourself", expected_answer 
               {/* Feedback */}
               {feedback && (
                 <div>
-                  <h3 className="text-xl font-semibold text-gray-800 mb-3">Feedback</h3>
+                  <h3 className="text-xl font-semibold mb-3">Feedback</h3>
                   <div className="bg-blue-50 p-4 rounded-xl border border-blue-200">
                     <p className="text-gray-700 whitespace-pre-wrap">{feedback}</p>
                   </div>
@@ -243,7 +244,7 @@ function QuestionSection({ question = "Tell Me about Yourself", expected_answer 
               {/* Better Answer */}
               {improvedAns && (
                 <div>
-                  <h3 className="text-xl font-semibold text-gray-800 mb-3">Improved Answer</h3>
+                  <h3 className="text-xl font-semibold mb-3">Improved Answer</h3>
                   <div className="bg-purple-50 p-4 rounded-xl border border-purple-200">
                     <p className="text-gray-700 whitespace-pre-wrap">{improvedAns}</p>
                   </div>
@@ -253,7 +254,8 @@ function QuestionSection({ question = "Tell Me about Yourself", expected_answer 
               {/* Retry Button */}
               <button
                 onClick={handleRetry}
-                className="w-full py-3 px-6 bg-blue-500 hover:bg-blue-600 text-white rounded-xl font-semibold shadow-sm transition-all duration-200 hover:shadow-md active:scale-[0.98]"
+                className="w-full py-3 px-6 bg-blue-500 hover:bg-blue-600 text-white rounded-xl font-semibold shadow-sm transition-all duration-200 hover:shadow-md active:scale-[0.98]
+                dark"
               >
                 Try Another Question
               </button>
