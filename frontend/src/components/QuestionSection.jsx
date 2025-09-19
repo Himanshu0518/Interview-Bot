@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useMemo } from 'react';
 
 import MockServices from '../services/mock';
-import Dictaphone from './Dictaphone';
+import Dictaphone from './DictaPhone';
 import { Star } from 'lucide-react';
 
 function QuestionSection({ question = "Tell Me about Yourself", expected_answer = "" }) {
