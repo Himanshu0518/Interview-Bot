@@ -1,12 +1,31 @@
-bcrypt>=4.3.0
-fastapi>=0.116.1
-langchain>=0.3.27
-langchain-community>=0.3.27
-langchain-google-genai>=2.1.9
-motor>=3.7.1
-passlib[bcrypt]>=1.7.4
-pydantic[email]>=2.11.7
-pyjwt>=2.10.1
-pypdf>=5.9.0
-python-multipart>=0.0.20
-uvicorn>=0.35.0
+# Use bcrypt <4 to avoid passlib compatibility issues
+bcrypt<4,>=3.2.0
+
+# Passlib version compatible with bcrypt <4
+passlib[bcrypt]==1.7.4
+
+# FastAPI
+fastapi>=0.116.1,<0.117
+
+# LangChain packages
+langchain>=0.3.27,<0.4
+langchain-community>=0.3.27,<0.4
+langchain-google-genai>=2.1.9,<3
+
+# MongoDB async driver
+motor>=3.7.1,<4
+
+# Pydantic
+pydantic[email]>=2.11.7,<3
+
+# JWT
+pyjwt>=2.10.1,<3
+
+# PDF processing
+pypdf>=5.9.0,<6
+
+# File uploads
+python-multipart>=0.0.20,<1
+
+# ASGI server
+uvicorn>=0.35.0,<1
