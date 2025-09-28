@@ -61,18 +61,18 @@ async def parse_resume(file, parser):
     return response
 
 
-async def get_questions_from_resume(extracted_info, input_data: dict):
+async def get_questions_from_resume(parser, input_data: dict):
     """Generate interview questions with answers from resume info."""
-    prompt = PromptTemplate.from_template(questions_prompt)
+    parser = PydanticOutputParser(pydantic_object=parser)
 
-    final_prompt = prompt.format(resume_text=json.dumps(extracted_info),
-                                  num_questions=input_data['num_questions'],
-                                  difficulty_level=input_data['difficulty_level'],
-                                   interview_type=input_data['interview_type'],
-                                  target_companies=input_data["target_companies"],
-                                  interview_description=input_data['interview_description']) 
+    prompt = PromptTemplate(
+        template=questions_prompt,
+        input_variables=["resume_text", "num_questions", "difficulty_level", "interview_type", "interview_description","target_companies"],
+        partial_variables={"format_instructions": parser.get_format_instructions()},
+    )
+    chain = prompt | model.model | parser
+    response = await chain.ainvoke(input_data)
     
-    response =  await model.get_response(final_prompt)
     logging.info("Questions generated successfully from AI")
 
     return response

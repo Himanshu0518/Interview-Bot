@@ -17,6 +17,7 @@ import AuthLayout from "./layout/AuthLayout";
 import MockPage from "./pages/MockPage";
 import  MockSetUpPage from "./pages/MockSetUp";
 
+
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route path="/" element={<RootLayout />}>
@@ -42,6 +43,8 @@ const router = createBrowserRouter(
     </Route>
   )
 );
+
+
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>

@@ -13,7 +13,7 @@ function Signup() {
     const [error, setError] = useState("")
     const [isLoading, setIsLoading] = useState(false)
     const dispatch = useDispatch()
-    const {register, handleSubmit, formState: { errors }} = useForm()
+    const {register, handleSubmit} = useForm()
     
 
     const create = async(data) => {
@@ -25,6 +25,7 @@ function Signup() {
             if (userData) {
                 const userData = await AuthServices.getCurrentUser()
                 if(userData) dispatch(login(userData));
+            
                 navigate("/")
    
                     const resume = await TestServices.get_resume()
@@ -65,7 +66,7 @@ function Signup() {
                             </div>
                         </div>
                         
-                        <h2 className="text-3xl font-bold text-gray-800 mb-2 bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+                        <h2 className="text-3xl font-bold mb-2 bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
                             Create Account
                         </h2>
                         <p className="text-gray-600 font-medium">

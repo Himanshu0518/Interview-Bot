@@ -41,24 +41,8 @@ Rules for question generation:
 - Do not include any text outside the dictionary.
 - Ensure the dictionary is valid Python syntax and can be parsed with ast.literal_eval().
 
-Return the result strictly in this Python dictionary format:
-{{
-    "questions": [
-        {{
-            "question": "<question 1>",
-            "options": ["<option A>", "<option B>", "<option C>", "<option D>"]
-            "correct_option": "index of correct option"
-            "explanation: "<explanation>"
-        }},
-        {{
-            "question": "<question 2>",
-            "options": ["<option A>", "<option B>", "<option C>", "<option D>"]
-            "correct_option": "index of correct option"
-            "explanation": "<explanation>"
-        }},
-        ...
-    ],
-}}
+### Output Format (JSON):
+{format_instructions}
 
 Candidate Resume:
 {resume_text}

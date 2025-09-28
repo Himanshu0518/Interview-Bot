@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends , File, UploadFile
 from typing import Annotated, List
 from utils.main_utils import parse_resume , get_questions_from_resume 
-from models.schemas import ParsedResume,ParsedResumeDB,QuestionRequest
+from models.schemas import ParsedResume,ParsedResumeDB,QuestionRequest,QuestionListResponse
 from utils.exception import MyException
 from utils.logger import logging
 import sys
@@ -61,7 +61,7 @@ async def get_resume(token_data:Annotated[TokenData, Depends(get_current_user)])
     return ParsedResume(**resume_data)
 
 
-@main_router.post("/get_questions")
+@main_router.post("/get_questions",response_model=QuestionListResponse)
 async def get_questions(token_data:Annotated[TokenData, Depends(get_current_user)] , question_query: QuestionRequest):
     username = token_data.username
     user_id = token_data.user_id
@@ -72,14 +72,9 @@ async def get_questions(token_data:Annotated[TokenData, Depends(get_current_user
         raise MyException(e, sys)
     
     try:
-        if "_id" in resume_data:
-            resume_data.pop("_id")
-        if "user_id" in resume_data:
-            resume_data.pop("user_id")
-        if "username" in resume_data:
-            resume_data.pop("username")
-
-        questions = await get_questions_from_resume(resume_data, input_data)
+        resume_text = ParsedResume(**resume_data)
+        input_data["resume_text"] = resume_text.model_dump()
+        questions = await get_questions_from_resume(QuestionListResponse, input_data)
     except Exception as e:
         raise MyException(e, sys)
     
@@ -91,8 +86,9 @@ async def get_questions(token_data:Annotated[TokenData, Depends(get_current_user
     
    
     logging.info(
-        f"{len(extracted_info['questions'])} questions generated successfully for {username}"
+        f"Questions generated successfully from AI for username: {username} and user_id: {user_id}"
     )
+#  print(extracted_info)
     return extracted_info
 
 @main_router.post("/resume_data", response_model=ParsedResume)
