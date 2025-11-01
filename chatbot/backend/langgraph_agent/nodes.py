@@ -1,5 +1,5 @@
 from langchain_google_genai import ChatGoogleGenerativeAI
-from langchain.prompts import ChatPromptTemplate
+from langchain_core.prompts import ChatPromptTemplate
 from langgraph_agent.state import ChatState, ChatMessage
 from langgraph_agent.knowledge_base import WebsiteKnowledgeBase
 from datetime import datetime
