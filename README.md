@@ -1,22 +1,38 @@
-# 🎯 Interview Bot - AI-Powered Interview Preparation Platform
+# 🤖 InterviewBot - AI-Powered Interview Preparation Platform
 
 <div align="center">
 
-![Interview Bot Banner](https://img.shields.io/badge/Interview-Bot-blue?style=for-the-badge)
+![InterviewBot Banner](https://img.shields.io/badge/Interview-Bot-blue?style=for-the-badge)
 [![FastAPI](https://img.shields.io/badge/FastAPI-005571?style=for-the-badge&logo=fastapi)](https://fastapi.tiangolo.com)
 [![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](https://reactjs.org)
 [![LangChain](https://img.shields.io/badge/🦜_LangChain-2C3E50?style=for-the-badge)](https://www.langchain.com)
 [![MongoDB](https://img.shields.io/badge/MongoDB-4EA94B?style=for-the-badge&logo=mongodb&logoColor=white)](https://www.mongodb.com)
 
-An intelligent interview preparation platform powered by AI that helps students practice and excel in technical and behavioral interviews through personalized mock interviews, MCQ tests, and real-time assistance.
+**An intelligent interview preparation platform powered by AI that helps job seekers prepare for interviews by generating personalized interview questions based on their resume.**
 
-[Features](#-features) • [Demo](#-demo) • [Installation](#-installation) • [Tech Stack](#-tech-stack) • [Usage](#-usage) • [API Documentation](#-api-documentation)
+Built with FastAPI, LangChain, LangGraph, MongoDB, and React, this project demonstrates end-to-end skills in Python backend development, modern frontend integration, AI orchestration, and database handling.
+
+[Features](#-features) • [Demo](#-live-demo) • [Architecture](#-system-architecture) • [Installation](#-installation--setup) • [API Documentation](#-api-documentation)
 
 </div>
 
 ---
 
-## 🌟 Features
+## 📑 Table of Contents
+
+- [Features](#-features)
+- [Live Demo](#-live-demo)
+- [Tech Stack](#-tech-stack)
+- [Project Structure](#-project-structure)
+- [Chatbot Architecture](#-chatbot-architecture)
+- [Installation & Setup](#-installation--setup)
+- [Configuration](#-configuration)
+- [Contributing](#-contributing)
+
+
+---
+
+## 🚀 Features
 
 ### 🤖 AI-Powered Chatbot Assistant
 - **Intelligent Conversation**: Powered by Google Gemini and LangGraph for natural interactions
@@ -24,181 +40,175 @@ An intelligent interview preparation platform powered by AI that helps students 
 - **Contextual Help**: Real-time assistance during interviews without revealing answers
 - **Multi-turn Setup**: Interactive questionnaire to configure personalized interviews
 - **Chat History**: Persistent conversation storage with session management
+- **Three Conversation Modes**:
+  - **Normal Chat** - Answer questions about the platform using RAG
+  - **Interview Setup** - Interactive multi-turn questionnaire
+  - **Contextual Help** - Explanations during interviews
 
-### 📝 Interview Modes
+### 📄 Resume Upload & Parsing
+- Upload resumes (PDF/Docx) which are parsed into structured JSON using LangChain
+- Secure storage of parsed resumes in MongoDB
+- Resume-based question generation
+
+### 🎤 AI Interview Simulation
 - **MCQ Tests**: Multiple choice question tests with various difficulty levels
 - **Mock Interviews**: AI-conducted voice/text interviews with realistic scenarios
 - **Technical & Behavioral**: Comprehensive coverage of different interview types
 - **Role-Specific**: Customized questions based on target job roles
-- **Difficulty Levels**: Adjustable complexity from beginner to expert
+- **Company-Specific**: Questions tailored to target companies (FAANG, startups, etc.)
 
-### 📊 Progress Tracking
-- **Dashboard Analytics**: Comprehensive performance metrics and insights
+### 📊 Progress Tracking & Analytics
+- **Dashboard**: Comprehensive performance metrics and insights
 - **Score Tracking**: Detailed scoring for each interview session
-- **Progress Reports**: Visual representation of improvement over time
 - **PDF Reports**: Downloadable performance summaries
+- **Progress Visualization**: Charts and graphs showing improvement
 
 ### 👤 User Management
-- **Secure Authentication**: JWT-based user authentication
-- **Resume Upload**: PDF resume parsing and analysis
-- **Profile Management**: Personalized user profiles
-- **Session History**: Access to past interviews and tests
+- Secure JWT-based authentication
+- Profile management
+- Session history tracking
 
 ---
 
-## 🎥 Demo
+## 🌐 Live Demo
 
-### Main Features
-- **Landing Page**: Interactive showcase of platform capabilities
-- **Interview Setup**: AI-guided configuration process
-- **Live Interviews**: Real-time MCQ and mock interview interfaces
-- **Dashboard**: Comprehensive analytics and performance tracking
+**Backend API**: [https://interview-bot-bali.onrender.com/docs](https://interview-bot-bali.onrender.com/docs)
 
-### Chatbot Capabilities
-```
-User: "I want to start an interview"
-Bot: "Great! Would you like an MCQ test or Mock interview?"
-
-User: "MCQ"
-Bot: "Perfect! What type of interview? (Technical/Behavioral/HR/Mixed)"
-
-User: "Technical"
-Bot: "What role are you preparing for?"
-
-User: "Python Developer"
-Bot: "What difficulty level? (Easy/Medium/Hard)"
-...
-```
-
----
-
-## 🚀 Installation
-
-### Prerequisites
-- Python 3.9+
-- Node.js 16+
-- MongoDB Atlas account
-- Google Gemini API key
-
-### Backend Setup
-
-1. **Clone the repository**
-```bash
-git clone https://github.com/yourusername/interview-bot.git
-cd interview-bot
-```
-
-2. **Set up main backend**
-```bash
-cd backend
-
-# Create virtual environment
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-
-# Install dependencies
-pip install -r requirements.txt
-
-# Configure environment variables
-cp .env.example .env
-# Edit .env and add your credentials:
-# - MONGODB_URL
-# - JWT_SECRET_KEY
-# - GOOGLE_API_KEY
-```
-
-3. **Set up chatbot backend**
-```bash
-cd ../chatbot/backend
-
-# Install chatbot dependencies
-pip install -r requirements.txt
-
-# Configure environment
-cp .env.example .env
-# Edit .env and add:
-# - GOOGLE_API_KEY
-# - MONGODB_URL
-# - WEBSITE_BASE_URL=http://localhost:5173
-
-# Index website content (one-time setup)
-python -m langgraph_agent.knowledge_base
-```
-
-### Frontend Setup
-
-```bash
-cd ../../frontend
-
-# Install dependencies
-npm install
-
-# Configure environment
-cp .env.example .env
-# Edit .env and add API endpoints
-
-# Start development server
-npm run dev
-```
-
-### Running the Application
-
-**Terminal 1 - Main Backend:**
-```bash
-cd backend
-uvicorn main:app --reload --port 8000
-```
-
-**Terminal 2 - Chatbot Backend:**
-```bash
-cd chatbot/backend
-python main.py
-# Runs on http://localhost:8001
-```
-
-**Terminal 3 - Frontend:**
-```bash
-cd frontend
-npm run dev
-# Runs on http://localhost:5173
-```
+**Frontend**: [https://interview-bot-wine.vercel.app](https://interview-bot-wine.vercel.app)
 
 ---
 
 ## 🛠️ Tech Stack
 
-### Backend
-| Technology | Purpose |
-|------------|---------|
-| **FastAPI** | High-performance async API framework |
-| **LangGraph** | AI conversation flow and state management |
-| **LangChain** | LLM integration and orchestration |
-| **Google Gemini** | Large language model for AI responses |
-| **ChromaDB** | Vector database for RAG implementation |
-| **MongoDB** | Database for user data and chat history |
-| **Motor** | Async MongoDB driver |
-| **PyJWT** | JWT token authentication |
-| **PyPDF** | Resume PDF processing |
-| **ReportLab** | PDF report generation |
+### Backend Technologies
 
-### Frontend
-| Technology | Purpose |
-|------------|---------|
-| **React 19** | UI framework |
-| **Vite** | Build tool and dev server |
-| **Redux Toolkit** | State management |
-| **React Router** | Client-side routing |
-| **Tailwind CSS** | Utility-first styling |
-| **Radix UI** | Accessible component primitives |
-| **React Hook Form** | Form handling |
-| **Lucide React** | Icon library |
-| **React Speech Recognition** | Voice input for interviews |
+| Technology | Purpose | Version |
+|------------|---------|---------|
+| **FastAPI** | High-performance async API framework | 0.116+ |
+| **LangGraph** | AI conversation flow and state management | 0.2+ |
+| **LangChain** | LLM integration and orchestration | 0.3+ |
+| **Google Gemini** | Large language model for AI responses | 1.5 Pro |
+| **ChromaDB** | Vector database for RAG implementation | 0.4+ |
+| **MongoDB** | Database for user data and chat history | Latest |
+| **Motor** | Async MongoDB driver | 3.7+ |
+| **PyJWT** | JWT token authentication | 2.10+ |
+| **PyPDF** | Resume PDF processing | 5.9+ |
+| **ReportLab** | PDF report generation | 4.0+ |
+| **Sentence Transformers** | Text embeddings | 2.3+ |
+| **BeautifulSoup4** | Web scraping for content indexing | 4.12+ |
+| **Passlib & Bcrypt** | Password hashing | 1.7.4 |
 
-### AI & ML
-- **Google Gemini 1.5 Pro** - Main LLM for chatbot
-- **Sentence Transformers** - Text embeddings for RAG
+### Frontend Technologies
+
+| Technology | Purpose | Version |
+|------------|---------|---------|
+| **React** | UI framework | 19.1+ |
+| **Vite** | Build tool and dev server | 7.1+ |
+| **Redux Toolkit** | State management | 2.8+ |
+| **React Router** | Client-side routing | 7.8+ |
+| **Tailwind CSS** | Utility-first styling | 4.1+ |
+| **Radix UI** | Accessible component primitives | Latest |
+| **React Hook Form** | Form handling | 7.62+ |
+| **Lucide React** | Icon library | 0.540+ |
+| **React Speech Recognition** | Voice input for interviews | 4.0+ |
+| **React Toastify** | Toast notifications | 11.0+ |
+
+### AI & ML Stack
+- **Google Gemini 1.5 Pro** - Main LLM for chatbot and question generation
+- **all-MiniLM-L6-v2** - Sentence embeddings for RAG
 - **ChromaDB** - Vector similarity search
 - **LangGraph** - Stateful conversation graphs
+- **LangChain** - LLM orchestration and tools
+
+
+
+### Data Flow Diagram
+
+```
+┌──────────────┐
+│     USER     │
+└──────┬───────┘
+       │
+       ├─────────────────────────────────────────────────┐
+       │                                                 │
+       ▼                                                 ▼
+┌─────────────────┐                             ┌─────────────────┐
+│ Upload Resume   │                             │  Start Chat     │
+└────────┬────────┘                             └────────┬────────┘
+         │                                               │
+         ▼                                               ▼
+┌─────────────────┐                             ┌─────────────────┐
+│ Parse PDF       │                             │ Send Message    │
+│ (PyPDF/         │                             │ to Chatbot      │
+│  LangChain)     │                             └────────┬────────┘
+└────────┬────────┘                                      │
+         │                                               ▼
+         ▼                                     ┌──────────────────────┐
+┌─────────────────┐                           │ LangGraph Workflow   │
+│ Extract Skills  │                           │ • Intent Detection   │
+│ & Experience    │                           │ • Mode Routing       │
+└────────┬────────┘                           │ • State Update       │
+         │                                    └────────┬─────────────┘
+         │                                             │
+         │                                    ┌────────┴────────┐
+         │                                    │                 │
+         │                                    ▼                 ▼
+         │                          ┌─────────────┐   ┌──────────────┐
+         │                          │ RAG Search  │   │ Multi-turn   │
+         │                          │ (ChromaDB)  │   │ Dialogue     │
+         │                          └─────────────┘   └──────────────┘
+         │                                    │                 │
+         │                                    └────────┬────────┘
+         │                                             │
+         ▼                                             ▼
+┌─────────────────┐                          ┌─────────────────┐
+│ Store in        │                          │ Generate        │
+│ MongoDB         │                          │ Response        │
+│ (Resume DB)     │                          │ (Gemini LLM)    │
+└────────┬────────┘                          └────────┬────────┘
+         │                                            │
+         │                                            ▼
+         │                                   ┌─────────────────┐
+         │                                   │ Save to Chat    │
+         │                                   │ History         │
+         │                                   └────────┬────────┘
+         │                                            │
+         └────────────┬───────────────────────────────┘
+                      │
+                      ▼
+            ┌──────────────────┐
+            │ Start Interview  │
+            └────────┬─────────┘
+                     │
+         ┌───────────┴───────────┐
+         │                       │
+         ▼                       ▼
+┌──────────────────┐    ┌─────────────────┐
+│  MCQ Test        │    │  Mock Interview │
+│  • Time-bound    │    │  • AI Questions │
+│  • Auto-score    │    │  • Voice/Text   │
+└────────┬─────────┘    └────────┬────────┘
+         │                       │
+         └───────────┬───────────┘
+                     │
+                     ▼
+            ┌──────────────────┐
+            │ Generate Report  │
+            │ (ReportLab PDF)  │
+            └────────┬─────────┘
+                     │
+                     ▼
+            ┌──────────────────┐
+            │ Store Results    │
+            │ (MongoDB)        │
+            └────────┬─────────┘
+                     │
+                     ▼
+            ┌──────────────────┐
+            │ Display on       │
+            │ Dashboard        │
+            └──────────────────┘
+```
 
 ---
 
@@ -206,497 +216,610 @@ npm run dev
 
 ```
 interview-bot/
-├── backend/                    # Main FastAPI application
-│   ├── routers/               # API route handlers
-│   │   ├── auth.py           # Authentication endpoints
-│   │   ├── bot.py            # Interview bot endpoints
-│   │   ├── mock.py           # Mock interview logic
-│   │   ├── dashboard.py      # Analytics endpoints
-│   │   └── main_router.py    # General endpoints
-│   ├── models/               # Pydantic models
-│   ├── utils/                # Utility functions
-│   ├── connections/          # Database connections
-│   ├── main.py              # FastAPI app entry point
-│   └── requirements.txt
 │
-├── chatbot/                   # AI Chatbot microservice
+├── backend/                        # Main FastAPI Application (Port 8000)
+│   ├── connections/               # Database connection modules
+│   │   └── mongodb.py            # MongoDB connection setup
+│   │
+│   ├── models/                    # Pydantic models & schemas
+│   │   ├── auth.py               # User authentication models
+│   │   ├── schemas.py            # Request/response schemas
+│   │   └── __init__.py
+│   │
+│   ├── routers/                   # API route handlers
+│   │   ├── auth.py               # Authentication endpoints
+│   │   │   • POST /signup        # User registration
+│   │   │   • POST /login         # User login
+│   │   │   • GET /me             # Get current user
+│   │   │
+│   │   ├── bot.py                # Interview bot endpoints
+│   │   │   • POST /parse-resume  # Upload & parse resume
+│   │   │   • POST /generate-questions  # Generate interview questions
+│   │   │   • POST /start-interview  # Start interview session
+│   │   │   • POST /submit-answer    # Submit MCQ answer
+│   │   │
+│   │   ├── mock.py               # Mock interview endpoints
+│   │   │   • POST /start-mock    # Start mock interview
+│   │   │   • POST /next-question # Get next mock question
+│   │   │   • POST /submit-response  # Submit response
+│   │   │   • GET /mock-feedback  # Get interview feedback
+│   │   │
+│   │   ├── dashboard.py          # Analytics endpoints
+│   │   │   • GET /stats          # Get user statistics
+│   │   │   • GET /recent-tests   # Get recent test history
+│   │   │   • GET /download-report  # Download PDF report
+│   │   │
+│   │   ├── main_router.py        # General utility endpoints
+│   │   │   • GET /health         # Health check
+│   │   │   • POST /contact       # Contact form
+│   │   │
+│   │   └── __init__.py
+│   │
+│   ├── utils/                     # Utility functions
+│   │   ├── exception.py          # Custom exception handlers
+│   │   ├── logger.py             # Logging configuration
+│   │   ├── main_utils.py         # Common utility functions
+│   │   ├── prompts.py            # LLM prompt templates
+│   │   └── __init__.py
+│   │
+│   ├── main.py                    # FastAPI application entry point
+│   ├── validate_env.py            # Environment variable validation
+│   ├── verify_setup.py            # Setup verification script
+│   ├── requirements.txt           # Python dependencies
+│   ├── pyproject.toml            # UV package manager config
+│   ├── uv.lock                   # Dependency lock file
+│   ├── .env                      # Environment variables
+│   ├── .gitignore
+│   └── README.md
+│
+├── chatbot/                       # AI Chatbot Microservice (Port 8001)
 │   ├── backend/
-│   │   ├── langgraph_agent/  # LangGraph implementation
-│   │   │   ├── state.py     # State definitions
-│   │   │   ├── nodes.py     # Conversation nodes
-│   │   │   ├── graph.py     # LangGraph workflow
-│   │   │   └── knowledge_base.py  # RAG implementation
-│   │   ├── database.py      # MongoDB client
-│   │   ├── main.py         # Chatbot FastAPI app
-│   │   └── requirements.txt
-│   ├── ARCHITECTURE.md      # Technical architecture doc
-│   ├── QUICKSTART.md       # Quick setup guide
-│   └── README.md           # Chatbot documentation
+│   │   ├── langgraph_agent/      # LangGraph conversation agent
+│   │   │   ├── state.py          # Conversation state definitions
+│   │   │   │   • ChatState class
+│   │   │   │   • Message models
+│   │   │   │   • Interview parameters
+│   │   │   │
+│   │   │   ├── nodes.py          # LangGraph node functions
+│   │   │   │   • intent_detection_node()
+│   │   │   │   • normal_chat_node()
+│   │   │   │   • setup_interview_node()
+│   │   │   │   • contextual_help_node()
+│   │   │   │
+│   │   │   ├── graph.py          # LangGraph workflow definition
+│   │   │   │   • create_graph()
+│   │   │   │   • State transitions
+│   │   │   │   • Conditional routing
+│   │   │   │
+│   │   │   ├── knowledge_base.py # RAG implementation
+│   │   │   │   • Website content scraping
+│   │   │   │   • Text chunking & embedding
+│   │   │   │   • ChromaDB vector storage
+│   │   │   │   • Semantic search
+│   │   │   │
+│   │   │   └── __init__.py
+│   │   │
+│   │   ├── database.py           # MongoDB client for chatbot
+│   │   ├── main.py              # Chatbot FastAPI app
+│   │   │   • POST /chat          # Main chat endpoint
+│   │   │   • GET /sessions/{user_id}  # Get user sessions
+│   │   │   • GET /history/{user_id}/{session_id}  # Get chat history
+│   │   │   • DELETE /session/{user_id}/{session_id}  # Delete session
+│   │   │   • POST /index-website  # Re-index website content
+│   │   │
+│   │   ├── page_capture.py       # Website scraping utility
+│   │   ├── run_indexing.py       # Manual indexing script
+│   │   ├── test_chatbot.py       # Chatbot test suite
+│   │   ├── verify_chatbot.py     # Chatbot verification
+│   │   ├── requirements.txt      # Chatbot dependencies
+│   │   ├── .env                  # Chatbot environment vars
+│   │   └── .env.example
+│   │
+│   ├── ARCHITECTURE.md           # Detailed chatbot architecture
+│   ├── QUICKSTART.md            # Quick setup guide
+│   └── README.md                # Chatbot documentation
 │
-├── frontend/                  # React application
+├── frontend/                      # React Application (Port 5173)
 │   ├── src/
-│   │   ├── components/      # Reusable UI components
-│   │   ├── pages/          # Page components
-│   │   ├── features/       # Feature modules
-│   │   ├── layout/         # Layout components
-│   │   ├── store/          # Redux store
-│   │   ├── services/       # API service layer
-│   │   └── main.jsx       # App entry point
-│   ├── public/            # Static assets
-│   └── package.json
+│   │   ├── assets/               # Static assets (images, icons)
+│   │   │
+│   │   ├── components/           # Reusable UI components
+│   │   │   ├── ui/              # Radix UI components
+│   │   │   │   ├── button.jsx
+│   │   │   │   ├── card.jsx
+│   │   │   │   ├── dialog.jsx
+│   │   │   │   └── ...
+│   │   │   ├── Chatbot.jsx      # Floating chat widget
+│   │   │   ├── Chatbot.css      # Chat widget styles
+│   │   │   ├── Header.jsx       # Site header
+│   │   │   ├── Footer.jsx       # Site footer
+│   │   │   └── ...
+│   │   │
+│   │   ├── features/            # Feature-specific components
+│   │   │   ├── auth/           # Authentication features
+│   │   │   ├── interview/      # Interview features
+│   │   │   └── dashboard/      # Dashboard features
+│   │   │
+│   │   ├── hooks/               # Custom React hooks
+│   │   │   ├── useAuth.js      # Authentication hook
+│   │   │   ├── useInterview.js # Interview hook
+│   │   │   └── ...
+│   │   │
+│   │   ├── layout/              # Layout components
+│   │   │   ├── RootLayout.jsx  # Main layout wrapper
+│   │   │   ├── AuthLayout.jsx  # Auth pages layout
+│   │   │   └── DashboardLayout.jsx  # Dashboard layout
+│   │   │
+│   │   ├── lib/                 # Utility libraries
+│   │   │   └── utils.js        # Helper functions
+│   │   │
+│   │   ├── pages/               # Page components
+│   │   │   ├── Home.jsx        # Landing page
+│   │   │   ├── Login.jsx       # Login page
+│   │   │   ├── Signup.jsx      # Registration page
+│   │   │   ├── Dashboard.jsx   # User dashboard
+│   │   │   ├── TestPage.jsx    # MCQ test page
+│   │   │   ├── MockPage.jsx    # Mock interview page
+│   │   │   └── ...
+│   │   │
+│   │   ├── services/            # API service layer
+│   │   │   ├── api.js          # Axios instance
+│   │   │   ├── authService.js  # Auth API calls
+│   │   │   ├── botService.js   # Interview API calls
+│   │   │   └── chatService.js  # Chatbot API calls
+│   │   │
+│   │   ├── store/               # Redux store
+│   │   │   ├── store.js        # Store configuration
+│   │   │   ├── slices/         # Redux slices
+│   │   │   │   ├── authSlice.js
+│   │   │   │   ├── interviewSlice.js
+│   │   │   │   └── chatSlice.js
+│   │   │   └── index.js
+│   │   │
+│   │   ├── main.jsx            # App entry point
+│   │   └── styles.css          # Global styles
+│   │
+│   ├── public/                  # Public static files
+│   ├── index.html              # HTML template
+│   ├── package.json            # NPM dependencies
+│   ├── vite.config.js          # Vite configuration
+│   ├── tailwind.config.js      # Tailwind CSS config
+│   ├── components.json         # shadcn/ui config
+│   ├── .env                    # Frontend environment vars
+│   └── .gitignore
 │
-├── index_website.py         # Website indexing script
-├── test_knowledge.py       # Chatbot knowledge test
-└── README.md              # This file
+├── index_website.py             # Website indexing CLI tool
+├── test_knowledge.py           # Chatbot knowledge testing
+├── DASHBOARD_FIX_NOTE.js       # Dashboard fix notes
+├── INDEX_WEBSITE.bat           # Windows batch script
+├── INSTALL_REPORTLAB.bat       # ReportLab installer
+├── README.md                   # Main project README (this file)
+├── .gitignore
+└── LICENSE
 ```
+
+
+
+## 🤖 Chatbot Architecture
+
+### System Overview
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                          USER INTERFACE                          │
+│                         (React Frontend)                         │
+│                                                                   │
+│  ┌────────────────────────────────────────────────────────┐    │
+│  │  Floating Chat Widget (Chatbot.jsx)                    │    │
+│  │  • Message display                                      │    │
+│  │  • Input textarea                                       │    │
+│  │  • Session management                                   │    │
+│  │  • Interview launch button                              │    │
+│  └────────────────────────────────────────────────────────┘    │
+└───────────────────────────┬─────────────────────────────────────┘
+                            │
+                            │ HTTP POST /chat
+                            │ {user_id, message, session_id}
+                            ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                       CHATBOT BACKEND                            │
+│                      (FastAPI + LangGraph)                       │
+│                                                                   │
+│  ┌──────────────────────────────────────────────────────────┐  │
+│  │                    main.py (API)                          │  │
+│  │  • /chat endpoint                                         │  │
+│  │  • Load conversation state                                │  │
+│  │  • Invoke LangGraph                                       │  │
+│  │  • Save to MongoDB                                        │  │
+│  └─────────────────────┬────────────────────────────────────┘  │
+│                        │                                         │
+│                        ▼                                         │
+│  ┌──────────────────────────────────────────────────────────┐  │
+│  │              LangGraph Workflow (graph.py)                │  │
+│  │                                                            │  │
+│  │    ┌─────────────────────────────────────────┐           │  │
+│  │    │    Intent Detection Node                 │           │  │
+│  │    │  • Classify user message                 │           │  │
+│  │    │  • Route to appropriate mode             │           │  │
+│  │    └──────────┬──────────────────────────────┘           │  │
+│  │               │                                            │  │
+│  │      ┌────────┴────────┬──────────────┐                  │  │
+│  │      │                 │              │                   │  │
+│  │      ▼                 ▼              ▼                   │  │
+│  │  ┌────────┐      ┌─────────┐    ┌──────────┐            │  │
+│  │  │ Normal │      │  Setup  │    │   Help   │            │  │
+│  │  │  Chat  │      │Interview│    │Contextual│            │  │
+│  │  │  Node  │      │   Node  │    │   Node   │            │  │
+│  │  └───┬────┘      └────┬────┘    └────┬─────┘            │  │
+│  │      │                │              │                   │  │
+│  │      │                │              │                   │  │
+│  │      └────────┬───────┴────────┬─────┘                  │  │
+│  │               │                │                          │  │
+│  │               ▼                ▼                          │  │
+│  │      ┌─────────────┐  ┌──────────────┐                  │  │
+│  │      │  RAG Search │  │Multi-turn Q&A│                  │  │
+│  │      │ (ChromaDB)  │  │  State Mgmt  │                  │  │
+│  │      └─────────────┘  └──────────────┘                  │  │
+│  └──────────────────────────────────────────────────────────┘  │
+│                                                                  │
+│  ┌──────────────────────────────────────────────────────────┐  │
+│  │         Google Gemini LLM (nodes.py)                      │  │
+│  │  • Intent classification                                  │  │
+│  │  • Response generation                                    │  │
+│  │  • Context understanding                                  │  │
+│  └──────────────────────────────────────────────────────────┘  │
+└────────────────┬──────────────────────────┬───────────────────┘
+                 │                          │
+                 ▼                          ▼
+    ┌──────────────────────┐    ┌────────────────────────┐
+    │   ChromaDB           │    │   MongoDB              │
+    │   (Vector Store)     │    │   (Chat History)       │
+    │                      │    │                        │
+    │  • Website content   │    │  • Messages            │
+    │  • Text embeddings   │    │  • Sessions            │
+    │  • Semantic search   │    │  • Conversation state  │
+    └──────────────────────┘    └────────────────────────┘
+```
+
+### Conversation Flow
+
+#### 1. Normal Chat (RAG-based)
+```
+User: "How do I upload my resume?"
+    ↓
+Intent Detection → "normal"
+    ↓
+Search ChromaDB for relevant content
+    ↓
+Retrieve top matching documents
+    ↓
+Generate response using context + Gemini
+    ↓
+Return answer: "To upload your resume, go to..."
+```
+
+#### 2. Interview Setup (Multi-turn Dialogue)
+```
+User: "I want to start an interview"
+    ↓
+Intent Detection → "setup"
+    ↓
+Check current setup_step in state
+    ↓
+Ask next question in sequence:
+  Step 1: "Would you like MCQ or Mock interview?"
+  Step 2: "What type? (Technical/Behavioral/HR/Mixed)"
+  Step 3: "What role are you preparing for?"
+  Step 4: "What difficulty level? (Easy/Medium/Hard)"
+  Step 5: "How many questions?"
+  Step 6: "Any target companies? (e.g., FAANG)"
+  Step 7: "Ready to start?"
+    ↓
+Collect answer → Save to state.interview_params
+    ↓
+Move to next step
+    ↓
+When complete (all steps done):
+  Return interview_params + should_launch_interview=true
+```
+
+#### 3. Contextual Help During Interview
+```
+User is in interview with question: "Explain REST API"
+User asks in chat: "What is REST?"
+    ↓
+Intent Detection → "help"
+    ↓
+Get current_question from state
+    ↓
+Search knowledge base + use interview context
+    ↓
+Generate helpful explanation (no direct answer)
+    ↓
+Return: "REST stands for Representational State Transfer..."
+```
+
+
+
+
+
+## ⚙️ Installation & Setup
+
+### Prerequisites
+
+- **Python**: 3.9 or higher
+- **Node.js**: 16.x or higher
+- **MongoDB**: Atlas account (free tier works)
+- **Google Gemini API**: API key from Google AI Studio
+
+### Step 1: Clone the Repository
+
+```bash
+git clone https://github.com/Himanshu0518/Interview-Bot.git
+cd Interview-Bot
+```
+
+### Step 2: Backend Setup (Main API)
+
+```bash
+cd backend
+
+# Create virtual environment
+python -m venv venv
+
+# Activate virtual environment
+# On Windows:
+venv\Scripts\activate
+# On macOS/Linux:
+source venv/bin/activate
+
+# Install dependencies using uv (recommended)
+pip install uv
+uv sync
+
+# Or install with pip
+pip install -r requirements.txt
+
+# Create .env file
+cp .env.example .env
+```
+
+Edit `backend/.env`:
+```env
+MONGODB_URL="mongodb+srv://username:password@cluster.mongodb.net/"
+GOOGLE_API_KEY="your-gemini-api-key"
+MONGODB_DATABASE_NAME="InterviewBot"
+JWT_SECRET_KEY="your-secret-key-minimum-32-characters-long"
+JWT_ALGORITHM="HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES=30
+```
+
+### Step 3: Chatbot Backend Setup
+
+```bash
+cd ../chatbot/backend
+
+# Install chatbot dependencies
+pip install -r requirements.txt
+
+# Create .env file
+cp .env.example .env
+```
+
+Edit `chatbot/backend/.env`:
+```env
+GOOGLE_API_KEY="your-gemini-api-key"
+MONGODB_URL="mongodb+srv://username:password@cluster.mongodb.net/"
+MONGODB_DATABASE_NAME="InterviewBot"
+WEBSITE_BASE_URL="http://localhost:5173"
+EMBEDDING_MODEL="all-MiniLM-L6-v2"
+```
+
+**Important**: Index website content (one-time setup)
+```bash
+# Make sure frontend is running first, then:
+python -m langgraph_agent.knowledge_base
+```
+
+### Step 4: Frontend Setup
+
+```bash
+cd ../../frontend
+
+# Install dependencies
+npm install
+
+# Create .env file
+cp .env.example .env
+```
+
+Edit `frontend/.env`:
+```env
+VITE_BASE_URL="http://localhost:8000"
+VITE_CHATBOT_URL="http://localhost:8001"
+```
+
+### Step 5: Running the Application
+
+You need **three terminals** running simultaneously:
+
+**Terminal 1 - Main Backend:**
+```bash
+cd backend
+uv run uvicorn main:app --reload --port 8000
+# Or with regular Python:
+# uvicorn main:app --reload --port 8000
+```
+Backend runs at: `http://localhost:8000`
+
+**Terminal 2 - Chatbot Backend:**
+```bash
+cd chatbot/backend
+python main.py
+```
+Chatbot runs at: `http://localhost:8001`
+
+**Terminal 3 - Frontend:**
+```bash
+cd frontend
+npm run dev
+```
+Frontend runs at: `http://localhost:5173`
+
+### Step 6: Verify Setup
+
+Visit `http://localhost:5173` in your browser. You should see the InterviewBot landing page.
 
 ---
 
-## 💡 Usage
 
-### For Students
 
-1. **Sign Up / Login**
-   - Create an account or login to access the platform
-   - Upload your resume for personalized interview questions
-
-2. **Start an Interview**
-   - Chat with the AI bot: "I want to start an interview"
-   - Follow the interactive setup process
-   - Choose interview type, role, difficulty, and number of questions
-
-3. **Take the Test/Interview**
-   - MCQ: Answer questions within time limits
-   - Mock: Respond to AI interviewer questions via text or voice
-   - Use chatbot for contextual help without revealing answers
-
-4. **Review Performance**
-   - View detailed scores and feedback
-   - Download PDF reports
-   - Track progress on dashboard
-   - Review chat history for learning
-
-### Chatbot Interaction Examples
-
-**Getting Platform Information:**
-```
-You: "How do I upload my resume?"
-Bot: [Searches knowledge base and provides step-by-step guide]
-```
-
-**Starting an Interview:**
-```
-You: "Start interview"
-Bot: [Initiates multi-turn setup questionnaire]
-Bot: "Would you like MCQ or Mock interview?"
-You: "MCQ"
-Bot: "What type? Technical, Behavioral, HR, or Mixed?"
-...
-```
-
-**During Interview Help:**
-```
-You: [In interview with question about REST API]
-You: "What is REST?"
-Bot: [Provides educational explanation without revealing answer]
-```
-
----
-
-## 🔌 API Documentation
-
-### Main Backend (Port 8000)
-
-#### Authentication
-```http
-POST /auth/signup
-Content-Type: application/json
-
-{
-  "email": "user@example.com",
-  "password": "securepassword",
-  "name": "John Doe"
-}
-```
-
-```http
-POST /auth/login
-Content-Type: application/json
-
-{
-  "email": "user@example.com",
-  "password": "securepassword"
-}
-```
-
-#### Interview Management
-```http
-POST /bot/start-interview
-Authorization: Bearer <token>
-Content-Type: application/json
-
-{
-  "interview_format": "mcq",
-  "interview_type": "technical",
-  "role": "Python Developer",
-  "difficulty": "medium",
-  "num_questions": 10
-}
-```
-
-```http
-POST /bot/submit-answer
-Authorization: Bearer <token>
-Content-Type: application/json
-
-{
-  "interview_id": "uuid",
-  "question_id": "uuid",
-  "answer": "selected_option"
-}
-```
-
-#### Dashboard
-```http
-GET /dashboard/stats
-Authorization: Bearer <token>
-```
-
-### Chatbot Backend (Port 8001)
-
-#### Chat
-```http
-POST /chat
-Content-Type: application/json
-
-{
-  "user_id": "user_uuid",
-  "session_id": "session_uuid",  // optional
-  "message": "I want to start an interview",
-  "in_interview": false,
-  "current_question": null  // optional
-}
-
-Response:
-{
-  "session_id": "session_uuid",
-  "messages": [
-    {
-      "role": "user",
-      "content": "I want to start an interview",
-      "timestamp": "2024-01-01T00:00:00Z"
-    },
-    {
-      "role": "assistant",
-      "content": "Great! Would you like an MCQ or Mock interview?",
-      "timestamp": "2024-01-01T00:00:01Z"
-    }
-  ],
-  "interview_params": {},
-  "should_launch_interview": false
-}
-```
-
-#### Session Management
-```http
-GET /sessions/{user_id}
-GET /history/{user_id}/{session_id}?limit=50
-DELETE /session/{user_id}/{session_id}
-```
-
-#### Website Indexing
-```http
-POST /index-website
-```
-
----
-
-## 🎨 Features in Detail
-
-### AI Chatbot Architecture
-
-The chatbot uses **LangGraph** for sophisticated conversation management:
-
-1. **State Management**: Tracks conversation context, interview parameters, and user intent
-2. **Mode Detection**: Automatically switches between idle, normal chat, and interview setup
-3. **RAG Integration**: Searches indexed website content for accurate answers
-4. **Multi-turn Conversations**: Maintains state across multiple interactions
-5. **Parameter Extraction**: Collects interview configuration through natural dialogue
-
-### Interview Modes
-
-#### MCQ Tests
-- Timed questions with multiple choices
-- Immediate feedback and scoring
-- Category-wise performance tracking
-- Explanation for each answer
-
-#### Mock Interviews
-- AI-conducted realistic interview scenarios
-- Voice or text response options
-- Follow-up questions based on answers
-- Detailed feedback and improvement suggestions
-
-### Knowledge Base (RAG)
-
-The chatbot indexes your website content and uses it to answer user questions:
-
-1. **Content Scraping**: Automatically crawls specified pages
-2. **Embedding Generation**: Creates vector embeddings using Sentence Transformers
-3. **Vector Storage**: Stores in ChromaDB for fast retrieval
-4. **Semantic Search**: Finds relevant content for user queries
-5. **Context-Aware Responses**: Combines search results with LLM generation
-
----
 
 ## 🔧 Configuration
 
 ### Environment Variables
 
-**Backend `.env`:**
+#### Backend `.env`
 ```env
-MONGODB_URL=mongodb+srv://username:password@cluster.mongodb.net/
-MONGODB_DATABASE_NAME=InterviewBot
-JWT_SECRET_KEY=your-secret-key-here
-JWT_ALGORITHM=HS256
+# MongoDB Configuration
+MONGODB_URL="mongodb+srv://username:password@cluster.mongodb.net/"
+MONGODB_DATABASE_NAME="InterviewBot"
+
+# Google Gemini API
+GOOGLE_API_KEY="your-gemini-api-key"
+
+# JWT Configuration
+JWT_SECRET_KEY="your-very-long-secret-key-minimum-32-characters"
+JWT_ALGORITHM="HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES=30
-GOOGLE_API_KEY=your-gemini-api-key
+
+# Optional: CORS Origins
+CORS_ORIGINS="http://localhost:5173,http://localhost:3000"
 ```
 
-**Chatbot `.env`:**
+#### Chatbot Backend `.env`
 ```env
-GOOGLE_API_KEY=your-gemini-api-key
-MONGODB_URL=mongodb+srv://username:password@cluster.mongodb.net/
-MONGODB_DATABASE_NAME=InterviewBot
-WEBSITE_BASE_URL=http://localhost:5173
-EMBEDDING_MODEL=all-MiniLM-L6-v2
+# Google Gemini API
+GOOGLE_API_KEY="your-gemini-api-key"
+
+# MongoDB Configuration
+MONGODB_URL="mongodb+srv://username:password@cluster.mongodb.net/"
+MONGODB_DATABASE_NAME="InterviewBot"
+
+# Website Configuration
+WEBSITE_BASE_URL="http://localhost:5173"
+
+# Embedding Model
+EMBEDDING_MODEL="all-MiniLM-L6-v2"
+
+# ChromaDB Configuration (optional)
+CHROMA_DB_PATH="./chroma_db"
 ```
 
-**Frontend `.env`:**
+#### Frontend `.env`
 ```env
-VITE_API_URL=http://localhost:8000
-VITE_CHATBOT_API_URL=http://localhost:8001
+# API Endpoints
+VITE_BASE_URL="http://localhost:8000"
+VITE_CHATBOT_URL="http://localhost:8001"
+
+# Optional: Analytics
+VITE_GA_TRACKING_ID="your-google-analytics-id"
 ```
 
-### Customization
-
-#### Adding Website Pages to Index
-Edit `chatbot/backend/langgraph_agent/knowledge_base.py`:
-```python
-pages = [
-    "/",
-    "/home",
-    "/about",
-    "/features",
-    "/your-new-page",  # Add here
-]
-```
-
-#### Modifying Interview Setup Flow
-Edit `chatbot/backend/langgraph_agent/nodes.py`:
-```python
-setup_steps = [
-    ("interview_format", "Would you like MCQ or Mock interview?"),
-    ("interview_type", "What type of interview?"),
-    ("role", "What role are you preparing for?"),
-    ("difficulty", "What difficulty level?"),
-    ("num_questions", "How many questions?"),
-]
-```
-
-#### Changing AI Model
-Edit `chatbot/backend/langgraph_agent/nodes.py`:
-```python
-llm = ChatGoogleGenerativeAI(
-    model="gemini-1.5-pro",  # or "gemini-1.5-flash"
-    temperature=0.7,
-    max_tokens=2048
-)
-```
-
----
-
-## 🐛 Troubleshooting
-
-### Common Issues
-
-**1. MongoDB Connection Failed**
-```bash
-# Check your MONGODB_URL in .env
-# Ensure IP address is whitelisted in MongoDB Atlas
-# Verify database user permissions
-```
-
-**2. Chatbot Not Responding**
-```bash
-# Ensure chatbot backend is running on port 8001
-# Check GOOGLE_API_KEY is valid
-# Verify ChromaDB is initialized:
-python -m langgraph_agent.knowledge_base
-```
-
-**3. Frontend Can't Connect**
-```bash
-# Check CORS settings in backend main.py
-# Verify API URLs in frontend .env
-# Ensure both backends are running
-```
-
-**4. Website Indexing Fails**
-```bash
-# Make sure frontend is running on WEBSITE_BASE_URL
-# Check network connectivity
-# Verify page URLs are correct
-```
-
-**5. JWT Authentication Errors**
-```bash
-# Check JWT_SECRET_KEY matches between requests
-# Verify token expiration time
-# Clear browser cookies/localStorage
-```
-
----
-
-## 🔒 Security
-
-- **JWT Authentication**: Secure token-based auth with expiration
-- **Password Hashing**: Bcrypt encryption for user passwords
-- **CORS Protection**: Configured allowed origins
-- **Input Validation**: Pydantic models for request validation
-- **Rate Limiting**: Protection against abuse (implement as needed)
-- **Environment Variables**: Sensitive data in .env files
-- **SQL Injection**: MongoDB with Motor prevents injection attacks
-
----
-
-## 🚦 Testing
-
-### Backend Tests
-```bash
-cd backend
-pytest tests/
-```
-
-### Chatbot Knowledge Test
-```bash
-python test_knowledge.py
-```
-
-### Frontend Tests
-```bash
-cd frontend
-npm test
-```
-
----
-
-## 📈 Performance
-
-- **Backend**: FastAPI with async/await for high concurrency
-- **Database**: MongoDB with proper indexing for fast queries
-- **Chatbot**: Efficient vector search with ChromaDB
-- **Frontend**: React with code splitting and lazy loading
-- **Caching**: Session state cached in MongoDB for quick retrieval
-
----
-
-## 🗺️ Roadmap
-
-### Phase 1 (Current)
-- ✅ User authentication and authorization
-- ✅ MCQ and Mock interview modes
-- ✅ AI chatbot with RAG
-- ✅ Dashboard with basic analytics
-- ✅ Resume upload and parsing
-
-### Phase 2 (In Progress)
-- 🔄 Advanced analytics and insights
-- 🔄 Peer-to-peer mock interviews
-- 🔄 Video interview capability
-- 🔄 Company-specific interview prep
-
-### Phase 3 (Planned)
-- 📋 Mobile app (React Native)
-- 📋 Interview scheduling and reminders
-- 📋 Community features and forums
-- 📋 AI-powered resume builder
-- 📋 Integration with job portals
 
 ---
 
 ## 🤝 Contributing
 
-We welcome contributions! Please follow these steps:
+We welcome contributions from the community! Here's how you can help:
+
+### Ways to Contribute
+
+1. **Report Bugs**: Open an issue with detailed reproduction steps
+2. **Suggest Features**: Share your ideas for new features
+3. **Improve Documentation**: Help make docs clearer
+4. **Write Code**: Submit pull requests for bug fixes or features
+5. **Test**: Help test new features and report issues
+
+### Contribution Process
 
 1. **Fork the repository**
+```bash
+git clone https://github.com/yourusername/Interview-Bot.git
+cd Interview-Bot
+```
+
 2. **Create a feature branch**
-   ```bash
-   git checkout -b feature/AmazingFeature
-   ```
-3. **Commit your changes**
-   ```bash
-   git commit -m 'Add some AmazingFeature'
-   ```
-4. **Push to the branch**
-   ```bash
-   git push origin feature/AmazingFeature
-   ```
-5. **Open a Pull Request**
+```bash
+git checkout -b feature/AmazingFeature
+```
 
-### Contribution Guidelines
-- Follow existing code style and conventions
-- Write clear commit messages
-- Add tests for new features
-- Update documentation as needed
-- Ensure all tests pass before submitting PR
+3. **Make your changes**
+```bash
+# Write code
+# Add tests
+# Update documentation
+```
 
----
+4. **Commit your changes**
+```bash
+git add .
+git commit -m 'Add some AmazingFeature'
+```
 
-## 📝 License
+5. **Push to the branch**
+```bash
+git push origin feature/AmazingFeature
+```
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+6. **Open a Pull Request**
+- Go to GitHub repository
+- Click "New Pull Request"
+- Describe your changes
+- Wait for review
 
----
 
-## 👥 Authors
+## 👥 Authors & Contributors
 
-- **Kumar Abhishek** - *Initial work* - [GitHub Profile](https://github.com/yourusername)
+### Core Development Team
 
----
+Built by passionate students from **IIIT Una** combining AI with real-world solutions.
 
-## 🙏 Acknowledgments
+<table>
+<tr>
+<td align="center" width="50%">
+<img src="./WhatsApp Image 2025-11-01 at 14.02.56_a61a69f0.jpg" alt="Himanshu Singh" width="100" height="100" style="border-radius: 50%;" />
+<h3>Himanshu Singh</h3>
+<p><strong>Full Stack Developer</strong></p>
+<p>🎓 BTech ECE @ IIIT Una</p>
+<p>💡 AI/ML, Web Development</p>
+<p>
+<a href="mailto:himanshu.iiitu2027@gmail.com"><img src="https://img.shields.io/badge/Email-D14836?style=flat&logo=gmail&logoColor=white" /></a>
+<a href="https://www.linkedin.com/in/himanshu-singh23226/"><img src="https://img.shields.io/badge/LinkedIn-0077B5?style=flat&logo=linkedin&logoColor=white" /></a>
+<a href="https://github.com/Himanshu0518"><img src="https://img.shields.io/badge/GitHub-100000?style=flat&logo=github&logoColor=white" /></a>
+</p>
+</td>
+<td align="center" width="50%">
+<img src="./github_photo (1).png" alt="Kumar Abhishek" width="100" height="100" style="border-radius: 50%;" />
+<h3>Kumar Abhishek</h3>
+<p><strong>ML Engineer</strong></p>
+<p>🎓 BTech ECE @ IIIT Una</p>
+<p>💡 AI/ML, GenAI, Web Development</p>
+<p>
+<a href="mailto:abhishek.kr0418@gmail.com"><img src="https://img.shields.io/badge/Email-D14836?style=flat&logo=gmail&logoColor=white" /></a>
+<a href="https://linkedin.com/in/kumar-abhishek-6b5828288"><img src="https://img.shields.io/badge/LinkedIn-0077B5?style=flat&logo=linkedin&logoColor=white" /></a>
+<a href="https://github.com/kumarAbhishek2004"><img src="https://img.shields.io/badge/GitHub-100000?style=flat&logo=github&logoColor=white" /></a>
+</p>
+</td>
+</tr>
+</table>
 
-- **Google Gemini** - For powerful language model capabilities
-- **LangChain & LangGraph** - For LLM orchestration and conversation flow
-- **FastAPI** - For excellent async web framework
-- **MongoDB** - For flexible document database
-- **React Community** - For amazing frontend ecosystem
+### Contributors
 
----
+Thanks to all contributors who have helped improve this project!
 
-## 📞 Support
 
-- **Documentation**: [Full docs coming soon]
-- **Issues**: [GitHub Issues](https://github.com/yourusername/interview-bot/issues)
-- **Email**: your.email@example.com
-- **Discord**: [Join our community]
 
----
-
-## 📊 Stats
-
-![GitHub stars](https://img.shields.io/github/stars/yourusername/interview-bot?style=social)
-![GitHub forks](https://img.shields.io/github/forks/yourusername/interview-bot?style=social)
-![GitHub issues](https://img.shields.io/github/issues/yourusername/interview-bot)
-![GitHub pull requests](https://img.shields.io/github/issues-pr/yourusername/interview-bot)
-
----
-
-<div align="center">
-
-**Made with ❤️ for interview preparation**
-
-[⬆ Back to Top](#-interview-bot---ai-powered-interview-preparation-platform)
-
-</div>
+<a href="https://github.com/kumarAbhishek2004/Interview-Bot/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=kumarAbhishek2004/Interview-Bot" />
+</a>
