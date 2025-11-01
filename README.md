@@ -788,7 +788,7 @@ Built by passionate students from **IIIT Una** combining AI with real-world solu
 <table>
 <tr>
 <td align="center" width="50%">
-<img src="./WhatsApp Image 2025-11-01 at 14.02.56_a61a69f0.jpg" alt="Himanshu Singh" width="100" height="100" style="border-radius: 50%;" />
+
 <h3>Himanshu Singh</h3>
 <p><strong>Full Stack Developer</strong></p>
 <p>🎓 BTech ECE @ IIIT Una</p>
@@ -800,7 +800,7 @@ Built by passionate students from **IIIT Una** combining AI with real-world solu
 </p>
 </td>
 <td align="center" width="50%">
-<img src="./github_photo (1).png" alt="Kumar Abhishek" width="100" height="100" style="border-radius: 50%;" />
+
 <h3>Kumar Abhishek</h3>
 <p><strong>ML Engineer</strong></p>
 <p>🎓 BTech ECE @ IIIT Una</p>
