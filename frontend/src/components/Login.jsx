@@ -1,5 +1,5 @@
-import React, {useState} from 'react'
-import {Link, useNavigate} from 'react-router-dom'
+import React, {useState,useEffect} from 'react'
+import {Link, useNavigate, useLocation} from 'react-router-dom'
 import { login as authLogin  } from '../features/authSlice'
 import {Button, Input} from "./index.js"
 import {useDispatch} from "react-redux"
@@ -7,14 +7,24 @@ import AuthServices from "../services/auth";
 import {useForm} from "react-hook-form"
 import TestServices from "../services/resume"
 import {setResume} from "../features/resumeSlice"
+import {toast} from "react-toastify"
 
 function Login() {
     const navigate = useNavigate()
+    const location = useLocation()
     const dispatch = useDispatch()
     const {register, handleSubmit} = useForm()
     const [error, setError] = useState("")
     const [isLoading, setIsLoading] = useState(false)
     
+    // Get the redirect path from location state or default to home
+    const from = location.state?.from?.pathname || "/";
+    
+   useEffect(() => {
+    if (error) {
+      toast.error(error);
+    }
+  }, [error]);
 
     const login = async(data) => {
         setError("")
@@ -22,10 +32,17 @@ function Login() {
         try {
             const session = await AuthServices.login(data)
             if (session) {
+                 const token = localStorage.getItem('');
                 const userData = await AuthServices.getCurrentUser()
-                if(userData) dispatch(authLogin(userData));
+                if(userData) {
+                   
+                    console.log(userData);
+                    dispatch(authLogin({ userData, token }));
+                    toast.success("Login successful!")
+                }
                
-                navigate("/")
+                // Redirect to the page they were trying to access or home
+                navigate(from, { replace: true })
                 
                     const resume = await TestServices.get_resume()
                     if (resume) {
@@ -70,16 +87,7 @@ function Login() {
                     </div>
 
                     {/* Error message */}
-                    {error && (
-                        <div className="mb-6 p-4 bg-red-50 border-l-4 border-red-400 rounded-lg animate-pulse">
-                            <div className="flex items-center">
-                                <svg className="w-5 h-5 text-red-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
-                                <p className="text-red-700 text-sm font-medium">{error}</p>
-                            </div>
-                        </div>
-                    )}
+                    
 
                     {/* Login form */}
                     <form onSubmit={handleSubmit(login)} className="space-y-6">

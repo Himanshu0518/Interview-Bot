@@ -29,3 +29,12 @@ python-multipart>=0.0.20,<1
 
 # ASGI server
 uvicorn>=0.35.0,<1
+
+# Environment variables
+python-dotenv>=1.0.0
+
+# Certifi for SSL
+certifi>=2023.7.22
+
+# PDF Report Generation
+reportlab>=4.0.0

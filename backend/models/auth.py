@@ -30,3 +30,6 @@ class UserInDB(User):
 class UserCreate(User):
     password: Annotated[str, Field(min_length=6, max_length=32 , description="Password must be at least 6 characters long")]
 
+class CurrentUser(BaseModel):
+    user_id: str
+    username: str

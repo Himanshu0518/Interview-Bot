@@ -1,5 +1,6 @@
 from pydantic import BaseModel, EmailStr, Field 
 from typing import List, Dict,Annotated, Optional
+from datetime import datetime
 
 class ParsedResume(BaseModel):
     name: Annotated[str, ...] = "Unknown"
@@ -77,3 +78,32 @@ class RatingResponse(BaseModel):
     rating: Annotated[float, Field(ge=0, le=5)]
     better_answer: Annotated[str, Field(description="Suggested better answer user could give as per user answer,expected answer and question")]
     feedback: Annotated[str, Field(description="Suggested feedback for user,key areas of improvements and suggestions and point out mistakes")]
+
+# Dashboard Models
+class QuestionData(BaseModel):
+    question: str
+    user_answer: str
+    expected_answer: Optional[str] = None
+    rating: Optional[float] = None
+    feedback: Optional[str] = None
+    better_answer: Optional[str] = None
+
+class TestResultCreate(BaseModel):
+    interview_type: str
+    difficulty_level: str
+    total_questions: int
+    average_rating: float
+    questions_data: List[QuestionData]
+
+class TestResult(TestResultCreate):
+    test_id: str
+    user_id: str
+    questions_answered: int
+    created_at: datetime
+
+class DashboardStats(BaseModel):
+    total_tests: int
+    total_questions_answered: int
+    overall_average_rating: float
+    best_performance: Optional[Dict] = None
+    recent_test_date: Optional[datetime] = None

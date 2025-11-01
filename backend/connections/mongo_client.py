@@ -2,10 +2,14 @@ import os
 import sys
 import motor.motor_asyncio
 import certifi
-from bson import ObjectId   # ✅ Add this
+from bson import ObjectId
+from dotenv import load_dotenv
 
 from utils.exception import MyException
 from utils.logger import logging
+
+# Load environment variables
+load_dotenv()
 
 ca = certifi.where()
 
@@ -16,8 +20,12 @@ class MongoDBClient:
 
     client = None  # Shared Motor client instance
 
-    def __init__(self, database_name: str = os.getenv("MONGODB_DATABASE_NAME")) -> None:
+    def __init__(self, database_name: str = None) -> None:
         try:
+            # Get database name from env if not provided
+            if database_name is None:
+                database_name = os.getenv("MONGODB_DATABASE_NAME", "InterviewBot")
+            
             if MongoDBClient.client is None:
                 mongo_db_url = os.getenv("MONGODB_URL_KEY")
                 if not mongo_db_url:
@@ -25,10 +33,14 @@ class MongoDBClient:
 
                 MongoDBClient.client = motor.motor_asyncio.AsyncIOMotorClient(
                     mongo_db_url,
-                    # tlsCAFile=ca,
-                    connectTimeoutMS=60000,
-                    serverSelectionTimeoutMS=60000,
-                    socketTimeoutMS=60000
+                    tls=True,
+                    tlsCAFile=ca,
+                    tlsAllowInvalidCertificates=False,  # Set to True only for development
+                    connectTimeoutMS=30000,
+                    serverSelectionTimeoutMS=30000,
+                    socketTimeoutMS=30000,
+                    maxPoolSize=50,
+                    minPoolSize=10
                 )
 
             self.client = MongoDBClient.client
@@ -66,10 +78,12 @@ class MongoDBClient:
         except Exception as e:
             raise MyException(e, sys)
 
-    async def find_many(self, collection_name: str, query: dict, limit: int = 0):
-        """Find multiple documents asynchronously."""
+    async def find_many(self, collection_name: str, query: dict, limit: int = 0, sort: list = None):
+        """Find multiple documents asynchronously with optional sorting."""
         try:
             cursor = self.get_collection(collection_name).find(query)
+            if sort:
+                cursor = cursor.sort(sort)
             if limit > 0:
                 cursor = cursor.limit(limit)
             return [doc async for doc in cursor]

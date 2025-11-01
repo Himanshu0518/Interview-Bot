@@ -25,7 +25,41 @@ def extract_json_from_text(text: str) -> dict:
         raise ValueError(f"Invalid JSON: {e}")
     
 @main_router.post("/upload_resume", response_model=ParsedResume)
-async def upload_resume(token_data:Annotated[TokenData, Depends(get_current_user)],file: UploadFile = File(...)):
+async def upload_resume(
+    token_data: Annotated[TokenData, Depends(get_current_user)],
+    file: UploadFile = File(...)
+):
+    """Upload and parse resume with file validation"""
+    
+    # Validate file type
+    allowed_types = [
+        "application/pdf",
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+    ]
+    if file.content_type not in allowed_types:
+        raise HTTPException(
+            status_code=400,
+            detail={
+                "error": "Invalid File Type",
+                "message": "Only PDF and DOCX files are allowed.",
+                "code": 2001
+            }
+        )
+    
+    # Validate file size (max 10MB)
+    contents = await file.read()
+    if len(contents) > 10 * 1024 * 1024:
+        raise HTTPException(
+            status_code=400,
+            detail={
+                "error": "File Too Large",
+                "message": "File size must not exceed 10MB.",
+                "code": 2002
+            }
+        )
+    
+    # Reset file pointer
+    await file.seek(0)
     
     try:
         result = await parse_resume(file, ParsedResume)

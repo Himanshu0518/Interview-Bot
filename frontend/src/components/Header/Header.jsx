@@ -15,6 +15,7 @@ function Header() {
     { name: "Home", path: "/" },
     { name: "About", path: "/about" },
     { name: "Upload Resume", path: "/upload_resume" },
+    { name: "Dashboard", path: "/dashboard" },
   ]
 
   const handleLogout = () => {

@@ -3,7 +3,7 @@ from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from utils.logger import logging
 from utils.exception import MyException
 from connections.mongo_client import MongoDBClient
-from models.auth import User, UserCreate, UserInDB, Token, TokenData
+from models.auth import User, UserCreate, UserInDB, Token, TokenData,CurrentUser
 from datetime import datetime, timedelta, timezone
 from typing import Annotated
 from bson import ObjectId
@@ -11,7 +11,6 @@ import jwt
 import os
 import sys
 from passlib.context import CryptContext
-from jwt.exceptions import InvalidTokenError
 
 # JWT config
 SECRET_KEY = os.getenv("JWT_SECRET_KEY")
@@ -27,8 +26,11 @@ auth_router = APIRouter(
 # Password hashing
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 MAX_BCRYPT_BYTES = 72  # bcrypt limit
+
 def truncate_password(password: str) -> str:
-    return password[:MAX_BCRYPT_BYTES]
+    """Truncate password to 72 bytes for bcrypt compatibility."""
+    password_bytes = password.encode('utf-8')[:MAX_BCRYPT_BYTES]
+    return password_bytes.decode('utf-8', errors='ignore')
 
 def hash_password(password: str) -> str:
     return pwd_context.hash(truncate_password(password))
@@ -67,7 +69,28 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]) -> Tok
 
         return TokenData(username=username, user_id=user_id)
 
-    except InvalidTokenError:
+    except (jwt.ExpiredSignatureError, jwt.InvalidTokenError, jwt.DecodeError, jwt.InvalidSignatureError) as e:
+        # FIXED: Catch specific JWT exceptions and provide clear error messages
+        error_type = type(e).__name__
+        if error_type == 'ExpiredSignatureError':
+            logging.warning(f"JWT validation failed: Token expired")
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Your session has expired. Please log in again.",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+        elif error_type == 'InvalidSignatureError':
+            logging.warning(f"JWT validation failed: Invalid signature (server was restarted)")
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Your session is no longer valid. Please log in again.",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+        else:
+            logging.warning(f"JWT validation failed: {error_type}")
+            raise credentials_exception
+    except Exception as e:
+        logging.error(f"Token validation error: {e}")
         raise credentials_exception
 
 # Register new user
@@ -143,3 +166,10 @@ async def login_for_access_token(form_data: Annotated[OAuth2PasswordRequestForm,
         raise
     except Exception as e:
         raise MyException(e, sys)
+    
+
+@auth_router.get("/getCurrentUser", response_model=CurrentUser)
+async def get_current_user_data(current_user: Annotated[TokenData, Depends(get_current_user)]):
+    return CurrentUser(username=current_user.username, user_id=current_user.user_id)
+
+

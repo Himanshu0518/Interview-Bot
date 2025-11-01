@@ -1,14 +1,24 @@
 import { useState, useEffect } from "react";
 import QuestionSection from "../components/QuestionSection";
 import MockServices from "../services/mock";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import Chatbot from "../components/Chatbot";
+import { useSelector } from 'react-redux';
+import DashboardServices from '../services/dashboard';
+import DeepgramDictaphone from "../components/DeepgramDictaphone";
 
 function MockPage() {
   const [activeIndex, setActiveIndex] = useState(0);
   const [loading, setLoading] = useState(true);
   const [questions, setQuestions] = useState([]);
   const [error, setError] = useState(null);
+  const [saving, setSaving] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+
+  const userData = useSelector((state) => state.auth.userData);
+  const token = useSelector((state) => state.auth.token);
+  const userId = userData?.user_id || 'guest';
 
   const { num_questions, difficulty_level, interview_type, job_description } =
     location.state || {
@@ -18,6 +28,58 @@ function MockPage() {
       job_description:
         "Develops and maintains both front-end and back-end systems, ensuring seamless, scalable, and user-friendly applications.",
     };
+
+  // Get current question for chatbot
+  const currentQuestion = questions[activeIndex];
+  const questionText = currentQuestion ? currentQuestion.question : null;
+
+  const handleFinishInterview = async () => {
+    try {
+      setSaving(true);
+
+      // Calculate average rating
+      const answeredQuestions = questions.filter(q => q.rating !== undefined && q.rating !== null);
+      
+      console.log('Total questions:', questions.length);
+      console.log('Answered questions:', answeredQuestions.length);
+      
+      if (answeredQuestions.length === 0) {
+        toast.info('Please answer at least one question and get a rating before saving.');
+        setSaving(false);
+        return;
+      }
+      
+      const avgRating = answeredQuestions.reduce((sum, q) => sum + q.rating, 0) / answeredQuestions.length;
+
+      // Prepare data
+      const testData = {
+        interview_type: interview_type || 'Mock',
+        difficulty_level: difficulty_level || 'Medium',
+        total_questions: questions.length,
+        questions_answered: answeredQuestions.length,
+        average_rating: parseFloat(avgRating.toFixed(2)),
+        questions_data: answeredQuestions.map(q => ({
+          question: q.question,
+          user_answer: q.answer || '',
+          expected_answer: q.expected_answer || '',
+          rating: q.rating || 0,
+          feedback: q.feedback || '',
+          better_answer: q.better_answer || ''
+        }))
+      };
+
+      console.log('Saving test data to localStorage:', testData);
+      
+      await DashboardServices.saveTestResult(testData, token);
+      toast.success(' Test results saved successfully!');
+      navigate('/dashboard');
+    } catch (err) {
+      console.error('Error saving test:', err);
+      toast.error('Failed to save test results: ' + (err.message || 'Unknown error'));
+    } finally {
+      setSaving(false);
+    }
+  };
 
   useEffect(() => {
     const fetchQuestions = async () => {
@@ -37,6 +99,9 @@ function MockPage() {
           const questionsWithAnswers = questionsArray.map((q) => ({
             ...q,
             answer: "",
+            rating: null,
+            feedback: "",
+            better_answer: ""
           }));
           setQuestions(questionsWithAnswers);
         } else {
@@ -53,6 +118,20 @@ function MockPage() {
 
     fetchQuestions();
   }, [num_questions, difficulty_level, interview_type, job_description]);
+
+  const handleQuestionComplete = (index, data) => {
+    setQuestions(prev => {
+      const updated = [...prev];
+      updated[index] = {
+        ...updated[index],
+        answer: data.answer,
+        rating: data.rating,
+        feedback: data.feedback,
+        better_answer: data.better_answer
+      };
+      return updated;
+    });
+  };
 
   if (loading) {
     return (
@@ -128,9 +207,20 @@ function MockPage() {
         {questions[activeIndex] && (
           <div className="bg-white/80 dark:bg-gray-800/70 backdrop-blur-xl rounded-2xl shadow-2xl p-8 border border-gray-200/40 dark:border-gray-700/40">
             {/* Header */}
-            <h2 className="text-2xl font-bold text-center mb-6 text-gray-900 dark:text-gray-100">
-              Question
-            </h2>
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                Question {activeIndex + 1} of {questions.length}
+              </h2>
+              {questions.filter(q => q.rating).length > 0 && (
+                <button
+                  onClick={handleFinishInterview}
+                  disabled={saving}
+                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white rounded-lg font-medium transition text-sm"
+                >
+                  {saving ? 'Saving...' : '💾 Save Progress'}
+                </button>
+              )}
+            </div>
 
             {/* Question Box */}
             <div className="bg-gray-100/80 dark:bg-gray-700/60 rounded-lg p-6 mb-8 shadow-inner text-gray-800 dark:text-gray-200 leading-relaxed text-base">
@@ -142,10 +232,39 @@ function MockPage() {
               key={activeIndex}
               question={questions[activeIndex].question}
               expected_answer={questions[activeIndex].expected_answer}
+              onComplete={(data) => handleQuestionComplete(activeIndex, data)}
             />
           </div>
         )}
+
+        {/* Finish Interview Button */}
+        {activeIndex === questions.length - 1 && (
+          <div className="bg-white/80 dark:bg-gray-800/70 backdrop-blur-xl rounded-2xl shadow-2xl p-8 border border-gray-200/40 dark:border-gray-700/40 text-center">
+            <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+              🎉 Interview Complete!
+            </h3>
+            <p className="text-gray-600 dark:text-gray-300 mb-6">
+              Save your results to view detailed reports and track your progress
+            </p>
+            <button
+              onClick={handleFinishInterview}
+              disabled={saving}
+              className="px-8 py-4 bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white rounded-xl font-semibold text-lg shadow-lg transition-all duration-200 disabled:cursor-not-allowed"
+            >
+              {saving ? 'Saving...' : '✅ Finish & Save Results'}
+            </button>
+          </div>
+        )}
       </div>
+
+      {/* Chatbot with ALL questions */}
+      <Chatbot 
+        userId={userId}
+        inInterview={true}
+        currentQuestion={questionText}
+        options={[]}
+        allQuestions={questions}
+      />
     </div>
   );
 }

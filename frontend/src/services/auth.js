@@ -8,52 +8,115 @@ class AuthServices {
   }
 
   // ✅ Register new user
-async register({ username, email, password }) {
-  const response = await fetch(`${this.API_URL}/register`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ username, email, password }),
-  });
+  async register({ username, email, password }) {
+    try {
+      const response = await fetch(`${this.API_URL}/register`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, email, password }),
+      });
 
-  const data = await response.json();
+      const text = await response.text();
+      const data = text ? JSON.parse(text) : {};
 
-  if (!response.ok) {
-    throw {
-      status: response.status,
-      code: data?.detail?.code || null,
-      message: data?.detail?.message || data?.detail || "Registration failed",
-    };
+      if (!response.ok) {
+        // Handle different error formats
+        let errorMessage = "Registration failed";
+        
+        if (data?.detail) {
+          if (typeof data.detail === 'string') {
+            errorMessage = data.detail;
+          } else if (data.detail?.message) {
+            errorMessage = data.detail.message;
+          } else if (Array.isArray(data.detail)) {
+            // Handle validation errors array
+            errorMessage = data.detail.map(err => err.msg || JSON.stringify(err)).join(', ');
+          }
+        }
+
+        throw {
+          status: response.status,
+          code: data?.detail?.code || null,
+          message: errorMessage,
+        };
+      }
+
+      return data;
+    } catch (error) {
+      // Re-throw if it's already our custom error
+      if (error.message) {
+        throw error;
+      }
+      // Handle network errors
+      throw new Error("Network error. Please check if backend is running.");
+    }
   }
-
-  return data;
-}
-
 
   // ✅ Login user
   async login({ username, password }) {
-    const response = await fetch(`${this.API_URL}/token`, {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: new URLSearchParams({
-        username,
-        password,
-      }),
-    });
+    try {
+      const response = await fetch(`${this.API_URL}/token`, {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams({
+          username,
+          password,
+        }),
+      });
 
-    const data = await response.json();
+      // Check if response has content before parsing JSON
+      const text = await response.text();
+      
+      if (!text) {
+        throw new Error(`Empty response from server. Please check if backend is running on ${this.BASE_URL}`);
+      }
 
-    if (!response.ok) {
-      const message =
-        data?.detail?.message || data?.detail || "Login failed";
-      throw new Error(message);
+      let data;
+      try {
+        data = JSON.parse(text);
+      } catch (parseError) {
+        throw new Error(`Server returned invalid response. Make sure backend is running at ${this.BASE_URL}`);
+      }
+
+      if (!response.ok) {
+        // Handle different error formats from FastAPI
+        let errorMessage = "Login failed";
+        
+        if (data?.detail) {
+          if (typeof data.detail === 'string') {
+            errorMessage = data.detail;
+          } else if (data.detail?.message) {
+            errorMessage = data.detail.message;
+          } else if (Array.isArray(data.detail)) {
+            // Handle validation errors array from FastAPI/Pydantic
+            errorMessage = data.detail.map(err => {
+              if (err.msg) return err.msg;
+              if (err.message) return err.message;
+              return JSON.stringify(err);
+            }).join(', ');
+          } else if (typeof data.detail === 'object') {
+            // Handle object errors
+            errorMessage = JSON.stringify(data.detail);
+          }
+        }
+
+        throw new Error(errorMessage);
+      }
+
+      // Store JWT token in localStorage
+      if (data.access_token) {
+        localStorage.setItem("user", JSON.stringify(data));
+      }
+
+      return data;
+    } catch (error) {
+      // If it's already an Error object with a message, throw it
+      if (error instanceof Error) {
+        throw error;
+      }
+      // Handle unexpected errors
+      throw new Error("An unexpected error occurred during login");
     }
-
-    // Store JWT token in localStorage
-    if (data.access_token) {
-      localStorage.setItem("user", JSON.stringify(data));
-    }
-
-    return data;
   }
 
   logout() {
@@ -62,36 +125,15 @@ async register({ username, email, password }) {
 
   // ✅ Get current user
   getCurrentUser() {
-    return JSON.parse(localStorage.getItem("user"));
+    try {
+      const user = localStorage.getItem("user");
+      return user ? JSON.parse(user) : null;
+    } catch (error) {
+      console.error("Error parsing user data:", error);
+      localStorage.removeItem("user");
+      return null;
+    }
   }
-
-  // // Example: ✅ Fetch protected profile endpoint
-  // async getProfile() {
-  //   const user = this.getCurrentUser();
-  //   if (!user?.access_token) throw new Error("No token found");
-  //
-  //   try {
-  //     const response = await fetch(`${this.API_URL}/profile`, {
-  //       method: "GET",
-  //       headers: {
-  //         Authorization: `Bearer ${user.access_token}`,
-  //       },
-  //     });
-  //
-  //     const data = await response.json();
-  //
-  //     if (!response.ok) {
-  //       const message =
-  //         data?.detail?.message || data?.detail || "Failed to fetch profile";
-  //       throw new Error(message);
-  //     }
-  //
-  //     return data;
-  //   } catch (error) {
-  //     console.error("Profile error:", error);
-  //     throw error;
-  //   }
-  // }
 }
 
 // Export single instance

@@ -1,10 +1,10 @@
 import React, { useState, useCallback, useMemo } from 'react';
-
+import { useSelector } from 'react-redux';
 import MockServices from '../services/mock';
-import Dictaphone from './DictaPhone';
+import DeepgramDictaphone from './DeepgramDictaphone';
 import { Star } from 'lucide-react';
 
-function QuestionSection({ question = "Tell Me about Yourself", expected_answer = "" }) {
+function QuestionSection({ question = "Tell Me about Yourself", expected_answer = "", onComplete = null }) {
   const [userAnswer, setUserAnswer] = useState('');
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [rating, setRating] = useState(null);
@@ -12,6 +12,10 @@ function QuestionSection({ question = "Tell Me about Yourself", expected_answer 
   const [improvedAns, setImprovedAns] = useState('');
   const [feedback, setFeedback] = useState('');
   const [error, setError] = useState(null);
+
+  // Get userId from Redux
+  const userData = useSelector((state) => state.auth.userData);
+  const userId = userData?.user_id || 'guest';
 
   const getrating = async (user_answer) => {
     try {
@@ -28,6 +32,16 @@ function QuestionSection({ question = "Tell Me about Yourself", expected_answer 
       setRating(ai_feedback.rating);
       setImprovedAns(ai_feedback.better_answer || '');
       setFeedback(ai_feedback.feedback || '');
+
+      // Call onComplete callback if provided
+      if (onComplete) {
+        onComplete({
+          answer: user_answer,
+          rating: ai_feedback.rating,
+          feedback: ai_feedback.feedback || '',
+          better_answer: ai_feedback.better_answer || ''
+        });
+      }
 
     } catch (err) {
       console.error('Error getting rating:', err);
@@ -94,8 +108,8 @@ function QuestionSection({ question = "Tell Me about Yourself", expected_answer 
         <div className="mb-8 space-y-6">
           <h3 className="text-xl font-semibold">Your Answer</h3>
 
-          {/* Speech Recognition Component */}
-          <Dictaphone 
+          {/* Speech Recognition Component - Using Deepgram */}
+          <DeepgramDictaphone 
             userAnswer={userAnswer}
             setUserAnswer={setUserAnswer}
             isSubmitted={isSubmitted}
@@ -263,6 +277,7 @@ function QuestionSection({ question = "Tell Me about Yourself", expected_answer 
           )}
         </div>
       )}
+
     </div>
   );
 }
