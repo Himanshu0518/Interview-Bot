@@ -27,9 +27,9 @@ app.add_middleware(
         "https://interview-bot-gypk.vercel.app"
     ],
     allow_credentials=True,
-    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allow_headers=["Content-Type", "Authorization", "Accept"],
-    max_age=3600
+    allow_methods=["*"],
+    allow_headers=["*"],
+    
 )
 
 app.include_router(bot_router)
