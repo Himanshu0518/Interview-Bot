@@ -1,29 +1,27 @@
 # Core
-fastapi==0.109.2
-uvicorn==0.29.0
-python-dotenv==1.0.1
-pydantic==2.7.0
-python-multipart==0.0.9
+fastapi>=0.109.0
+uvicorn>=0.27.0
+python-dotenv>=1.0.0
+pydantic>=2.5.0
 
-# LangChain + LangGraph (stable compatible versions)
-langgraph==0.2.15
-langchain==0.2.16
-langchain-core==0.2.36
-langchain-community==0.2.7
-langchain-google-genai==1.0.5
+# LangGraph & LangChain
+langgraph>=1.0.1
+langchain>=0.3.27
+langchain-google-genai>=2.1.12
+langchain-community>=0.3.30
 
-# Vector Databases & Embeddings
-chromadb==0.4.24
-sentence-transformers==2.7.0
+# Vector Database & Embeddings
+chromadb>=1.2.1
+sentence-transformers>=2.3.0
 
-# Web Scraping / Utilities
-beautifulsoup4==4.12.3
-playwright==1.45.0
-requests==2.32.3
+# Web Scraping
+beautifulsoup4>=4.12.0
+playwright>=1.41.0
+requests>=2.31.0
 
-# MongoDB
-motor==3.4.0
-pymongo==4.8.0
+# Database
+motor>=3.3.2
+pymongo>=4.6.1
 
-# Lightweight CPU-only PyTorch build
-torch==2.3.0+cpu -f https://download.pytorch.org/whl/torch_stable.html
+# Utilities
+python-multipart>=0.0.6
