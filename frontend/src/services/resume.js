@@ -5,7 +5,7 @@ class TestServices {
     this.BASE_URL = conf.BASE_URL;
   }
 
-  // ✅ Helper: get token from localStorage
+  //  Helper: get token from localStorage
   getAuthHeader() {
     const user = JSON.parse(localStorage.getItem("user"));
     if (!user?.access_token) throw new Error("No token found");
@@ -14,7 +14,7 @@ class TestServices {
     };
   }
 
-  // ✅ Upload resume (POST /upload_resume)
+  //  Upload resume (POST /upload_resume)
   async upload_resume(file) {
     try {
       const formData = new FormData();
@@ -65,7 +65,7 @@ class TestServices {
     }
   }
   
-  // ✅ Get resume (GET /get_resume)
+  //  Get resume (GET /get_resume)
   async get_resume() {
     try {
       const response = await fetch(`${this.BASE_URL}/get_resume`, {
@@ -104,7 +104,7 @@ class TestServices {
     }
   }
 
-  // ✅ Get questions (POST /get_questions)
+  //  Get questions (POST /get_questions)
   async get_questions({num_questions, difficulty_level , target_companies, interview_type, interview_description}) {
     try {
       const response = await fetch(`${this.BASE_URL}/get_questions`, {

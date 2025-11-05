@@ -115,7 +115,7 @@ def setup_interview_node(state: ChatState) -> ChatState:
     current_step = state.get("setup_step")
     last_message = state["messages"][-1]["content"].strip()
     
-    print(f"\n🔵 setup_interview_node called:")
+    print(f"\n setup_interview_node called:")
     print(f"   Current step: {current_step}")
     print(f"   Loaded params from _temp_params: {params}")
     print(f"   User message: {last_message}")
@@ -137,7 +137,7 @@ def setup_interview_node(state: ChatState) -> ChatState:
         state["mode"] = "setup"
         state["messages"].append({
             "role": "assistant",
-            "content": "🎯 **Let's set up your interview!**\n\n" + base_steps[0][1],
+            "content": " **Let's set up your interview!**\n\n" + base_steps[0][1],
             "timestamp": datetime.now().isoformat()
         })
         return state
@@ -154,7 +154,7 @@ def setup_interview_node(state: ChatState) -> ChatState:
         else:
             state["messages"].append({
                 "role": "assistant",
-                "content": "❌ Please choose either 'MCQ' or 'Mock'.",
+                "content": " Please choose either 'MCQ' or 'Mock'.",
                 "timestamp": datetime.now().isoformat()
             })
             return state
@@ -173,7 +173,7 @@ def setup_interview_node(state: ChatState) -> ChatState:
         else:
             state["messages"].append({
                 "role": "assistant",
-                "content": "❌ Please choose a valid interview type: Technical, Behavioral, Case Study, Coding, Aptitude, or Reasoning.",
+                "content": " Please choose a valid interview type: Technical, Behavioral, Case Study, Coding, Aptitude, or Reasoning.",
                 "timestamp": datetime.now().isoformat()
             })
             return state
@@ -185,7 +185,7 @@ def setup_interview_node(state: ChatState) -> ChatState:
         else:
             state["messages"].append({
                 "role": "assistant",
-                "content": "❌ Please enter a valid role name.",
+                "content": " Please enter a valid role name.",
                 "timestamp": datetime.now().isoformat()
             })
             return state
@@ -204,7 +204,7 @@ def setup_interview_node(state: ChatState) -> ChatState:
         else:
             state["messages"].append({
                 "role": "assistant",
-                "content": "❌ Please choose: Easy, Medium, or Hard.",
+                "content": " Please choose: Easy, Medium, or Hard.",
                 "timestamp": datetime.now().isoformat()
             })
             return state
@@ -224,7 +224,7 @@ def setup_interview_node(state: ChatState) -> ChatState:
         except:
             state["messages"].append({
                 "role": "assistant",
-                "content": "❌ Please enter a valid number between 1 and 50.",
+                "content": " Please enter a valid number between 1 and 50.",
                 "timestamp": datetime.now().isoformat()
             })
             return state
@@ -249,7 +249,7 @@ def setup_interview_node(state: ChatState) -> ChatState:
             
             # DEBUG LOG
             print("="  * 60)
-            print("🚀 INTERVIEW SETUP COMPLETE!")
+            print(" INTERVIEW SETUP COMPLETE!")
             print(f"Mode: {state['mode']}")
             print(f"Awaiting confirmation: {state.get('awaiting_confirmation')}")
             print(f"Setup step: {state.get('setup_step')}")
@@ -258,7 +258,7 @@ def setup_interview_node(state: ChatState) -> ChatState:
             
             state["messages"].append({
                 "role": "assistant",
-                "content": f"✅ **Perfect!** Launching your {state['interview_params'].get('interview_format', 'interview')}...\n\n" + 
+                "content": f" **Perfect!** Launching your {state['interview_params'].get('interview_format', 'interview')}...\n\n" + 
                           "**Click the 'Start Interview' button below to begin!** 🚀",
                 "timestamp": datetime.now().isoformat()
             })
@@ -271,14 +271,14 @@ def setup_interview_node(state: ChatState) -> ChatState:
             state["awaiting_confirmation"] = False
             state["messages"].append({
                 "role": "assistant",
-                "content": "No problem! Let me know when you'd like to start again. 😊",
+                "content": "No problem! Let me know when you'd like to start again. ",
                 "timestamp": datetime.now().isoformat()
             })
             return state
         else:
             state["messages"].append({
                 "role": "assistant",
-                "content": "❌ Please reply with 'Yes' to confirm or 'No' to cancel.",
+                "content": " Please reply with 'Yes' to confirm or 'No' to cancel.",
                 "timestamp": datetime.now().isoformat()
             })
             return state
@@ -286,26 +286,26 @@ def setup_interview_node(state: ChatState) -> ChatState:
     # CRITICAL: Always save params back to state after each step
     # This ensures data persists across function calls
     state["_temp_params"] = params
-    print(f"📦 Saving to _temp_params at step '{state.get('setup_step')}': {params}")
+    print(f" Saving to _temp_params at step '{state.get('setup_step')}': {params}")
     
     # IMPORTANT: Only move to interview_params after confirmation
     # This prevents the launch button from appearing too early
     if state["setup_step"] == "confirmation":
         # At confirmation stage, also update interview_params for display
         state["interview_params"] = params.copy()
-        print(f"✅ Also copying to interview_params: {state['interview_params']}")
+        print(f"Also copying to interview_params: {state['interview_params']}")
     
     # Move to next step and ask next question
     if state["setup_step"] == "confirmation":
         params_text = "\n".join([f"• **{k.replace('_', ' ').title()}**: {v}" for k, v in params.items()])
-        message = f"📋 **Great! Let me confirm your setup:**\n\n{params_text}\n\n**Ready to start?** (Reply with 'Yes' or 'No')"
+        message = f" **Great! Let me confirm your setup:**\n\n{params_text}\n\n**Ready to start?** (Reply with 'Yes' or 'No')"
     elif state["setup_step"] == "target_companies":
-        message = "🏢 **Which companies are you targeting?**\n\n(e.g., FAANG, Google, Microsoft, Amazon)"
+        message = " **Which companies are you targeting?**\n\n(e.g., FAANG, Google, Microsoft, Amazon)"
     elif state["setup_step"] == "job_description":
         if params.get("interview_format") == "Mock":
-            message = "📄 **Please paste the full job description here:**"
+            message = " **Please paste the full job description here:**"
         else:
-            message = "📝 **Brief job description or key skills to focus on?**\n\n(e.g., Backend development with Django and APIs)"
+            message = " **Brief job description or key skills to focus on?**\n\n(e.g., Backend development with Django and APIs)"
     else:
         # Find next step in base_steps
         step_names = [s[0] for s in base_steps]
@@ -424,10 +424,10 @@ def contextual_help_node(state: ChatState) -> ChatState:
     })
     
     # Format response
-    formatted_response = "💡 **Here's a hint:**\n\n" + response.content
+    formatted_response = " **Here's a hint:**\n\n" + response.content
     
     if all_questions:
-        formatted_response += f"\n\n_💭 I have access to all {len(all_questions)} questions. Ask about any specific question by number!_"
+        formatted_response += f"\n\n_ I have access to all {len(all_questions)} questions. Ask about any specific question by number!_"
     
     state["messages"].append({
         "role": "assistant",

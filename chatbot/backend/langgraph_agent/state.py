@@ -3,13 +3,13 @@ from datetime import datetime
 
 class InterviewParams(TypedDict, total=False):
     """Interview setup parameters"""
-    interview_type: str  # Technical, Behavioral, etc.
-    role: str  # Job role/position
-    difficulty: str  # Easy, Medium, Hard
+    interview_type: str  
+    role: str  
+    difficulty: str  
     num_questions: int
     target_companies: str
     job_description: str
-    interview_format: str  # MCQ or Mock
+    interview_format: str  
 
 class ChatMessage(TypedDict):
     """Single chat message"""
@@ -20,9 +20,9 @@ class ChatMessage(TypedDict):
 class ChatState(TypedDict, total=False):
     """Main state for the chatbot conversation"""
     messages: List[ChatMessage]
-    mode: str  # "normal", "setup", "help", or "idle"
+    mode: str 
     interview_params: InterviewParams
-    _temp_params: InterviewParams  # Temporary storage during setup
+    _temp_params: InterviewParams  
     in_interview: bool
     current_question: Optional[str]
     user_id: str

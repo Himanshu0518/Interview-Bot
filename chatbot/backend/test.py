@@ -14,4 +14,4 @@ if not mongo_uri or not db_name:
 client = MongoClient(mongo_uri)
 db = client[db_name]
 
-print("✅ Connected successfully to database:", db.name)
+print(" Connected successfully to database:", db.name)

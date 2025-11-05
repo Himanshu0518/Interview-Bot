@@ -32,12 +32,12 @@ async def lifespan(app: FastAPI):
         await chat_db.db["ConversationState"].create_index(
             [("user_id", 1), ("session_id", 1)], unique=True
         )
-        logger.info("✅ MongoDB indexes initialized successfully.")
+        logger.info(" MongoDB indexes initialized successfully.")
     except Exception as e:
-        logger.error(f"❌ Failed to initialize MongoDB indexes: {e}")
+        logger.error(f" Failed to initialize MongoDB indexes: {e}")
 
     yield
-    logger.info("🛑 Shutting down Interview Bot API...")
+    logger.info(" Shutting down Interview Bot API...")
 
 # -------------------------------------
 # FastAPI App Instance
@@ -183,8 +183,8 @@ async def chat_endpoint(request: ChatRequest):
             and not result.get("awaiting_confirmation", False)
         )
         
-        logger.info(f"🚀 Launch check - has_complete_params: {has_complete_params}, mode: {result.get('mode')}, should_launch: {should_launch}")
-        logger.info(f"📋 Params: {params}")
+        logger.info(f" Launch check - has_complete_params: {has_complete_params}, mode: {result.get('mode')}, should_launch: {should_launch}")
+        logger.info(f" Params: {params}")
 
         return ChatResponse(
             session_id=session_id,

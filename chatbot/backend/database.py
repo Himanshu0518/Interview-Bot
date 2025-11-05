@@ -14,7 +14,7 @@ class ChatHistoryDB:
         mongo_uri = os.getenv("MONGODB_URL")
         db_name = os.getenv("MONGODB_DATABASE_NAME", "InterviewBot")
 
-        # ✅ Add SSL fix (tls=True, tlsAllowInvalidCertificates=True)
+        #  Add SSL fix (tls=True, tlsAllowInvalidCertificates=True)
         self.client = AsyncIOMotorClient(
             mongo_uri,
             tls=True,
