@@ -30,7 +30,7 @@ const Chatbot = ({
   const onMockPage = location.pathname.includes('/mock');
   const actuallyInInterview = inInterview || onTestPage || onMockPage;
 
-  // ✅ LOAD conversation from sessionStorage on mount
+  //  LOAD conversation from sessionStorage on mount
   useEffect(() => {
     try {
       const savedConversation = sessionStorage.getItem(`chatbot_conversation_${userId}`);
@@ -52,7 +52,7 @@ const Chatbot = ({
     }
   }, [userId]);
 
-  // ✅ SAVE conversation to sessionStorage whenever it changes
+  //  SAVE conversation to sessionStorage whenever it changes
   useEffect(() => {
     if (messages.length > 0 || sessionId || interviewParams) {
       try {

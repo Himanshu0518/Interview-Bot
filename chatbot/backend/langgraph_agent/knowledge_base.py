@@ -15,31 +15,73 @@ class WebsiteKnowledgeBase:
     """Scrapes website content and creates a vector database for RAG"""
     
     def __init__(self):
-        self.base_url = os.getenv("WEBSITE_BASE_URL", "http://localhost:5173")
-        self.embedding_model = SentenceTransformer(os.getenv("EMBEDDING_MODEL", "all-MiniLM-L6-v2"))
+        # Production-ready base URL configuration
+        self.base_url = os.getenv("WEBSITE_BASE_URL")
+        
+        # If no URL set, try to detect environment
+        if not self.base_url:
+            if os.getenv("RAILWAY_ENVIRONMENT") or os.getenv("RENDER"):
+                # In production, must have WEBSITE_BASE_URL set
+                raise ValueError(
+                    "WEBSITE_BASE_URL environment variable must be set in production. "
+                    "Set it to your Vercel frontend URL (e.g., https://your-app.vercel.app)"
+                )
+            else:
+                # Local development
+                self.base_url = "http://localhost:5173"
+        
+        print(f" Using base URL: {self.base_url}")
+        
+        # Lazy load embedding model to save memory
+        self._embedding_model = None
+        self._model_name = os.getenv("EMBEDDING_MODEL", "all-MiniLM-L6-v2")
+        
+        # Use configurable ChromaDB path (for Railway volumes)
+        chroma_path = os.getenv("CHROMA_DB_PATH", "./chroma_db")
+        
+        # Ensure directory exists
+        os.makedirs(chroma_path, exist_ok=True)
+        print(f" Using ChromaDB path: {chroma_path}")
         
         # Initialize ChromaDB
-        self.chroma_client = chromadb.Client(Settings(
-            persist_directory="./chroma_db",
-            anonymized_telemetry=False
-        ))
+        try:
+            self.chroma_client = chromadb.Client(Settings(
+                persist_directory=chroma_path,
+                anonymized_telemetry=False
+            ))
+            print(" ChromaDB client initialized")
+        except Exception as e:
+            print(f" ChromaDB initialization error: {e}")
+            raise
         
         # Get or create collection
         try:
             self.collection = self.chroma_client.get_collection("website_content")
-        except:
+            print(" Existing collection loaded")
+        except Exception as e:
+            print(f"  Creating new collection: {e}")
             self.collection = self.chroma_client.create_collection(
                 name="website_content",
                 metadata={"description": "Interview Bot website content"}
             )
     
-    def scrape_page(self, url: str) -> Optional[Dict[str, str]]:
-        """Scrape content from a single page"""
+    @property
+    def embedding_model(self):
+        """Lazy load embedding model to save memory"""
+        if self._embedding_model is None:
+            print(f" Loading embedding model: {self._model_name}")
+            self._embedding_model = SentenceTransformer(self._model_name)
+            print(" Embedding model loaded")
+        return self._embedding_model
+    
+    def scrape_page(self, url: str, timeout: int = 15) -> Optional[Dict[str, str]]:
+        """Scrape content from a single page with better error handling"""
         try:
             headers = {
                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
             }
-            response = requests.get(url, timeout=10, headers=headers)
+            print(f"📡 Fetching: {url}")
+            response = requests.get(url, timeout=timeout, headers=headers)
             response.raise_for_status()
             soup = BeautifulSoup(response.content, 'html.parser')
             
@@ -56,14 +98,22 @@ class WebsiteKnowledgeBase:
             # Get page title
             title = soup.title.string if soup.title else url
             
+            print(f" Scraped: {title} ({len(text)} chars)")
+            
             return {
                 "url": url,
                 "title": title,
                 "content": text,
                 "html": str(soup)
             }
+        except requests.Timeout:
+            print(f"⏱️  Timeout scraping {url}")
+            return None
+        except requests.RequestException as e:
+            print(f" Request error scraping {url}: {e}")
+            return None
         except Exception as e:
-            print(f"Error scraping {url}: {e}")
+            print(f" Error scraping {url}: {e}")
             return None
     
     def extract_current_question(self, page_path: str = None) -> Optional[Dict[str, str]]:
@@ -79,7 +129,7 @@ class WebsiteKnowledgeBase:
             else:
                 return self._extract_from_path(page_path)
         except Exception as e:
-            print(f"Error extracting question: {e}")
+            print(f" Error extracting question: {e}")
             return None
     
     def _extract_from_path(self, path: str) -> Optional[Dict[str, str]]:
@@ -175,35 +225,36 @@ class WebsiteKnowledgeBase:
                 return page_data["content"][:1000]  # First 1000 chars
             return None
         except Exception as e:
-            print(f"Error getting live page context: {e}")
+            print(f" Error getting live page context: {e}")
             return None
     
-    def index_website(self):
+    def index_website(self, pages: List[str] = None):
         """Index all pages of the website"""
         
         # Define pages to scrape (adjust based on your routes)
-        pages = [
-            "/",
-            "/home",
-            "/about",
-            "/login",
-            "/signup",
-            "/upload_resume",
-            "/test_setup",
-            "/mock_setup",
-            "/test",
-            "/mock"
-        ]
+        if pages is None:
+            pages = [
+                "/",
+                "/home",
+                "/about",
+                "/login",
+                "/signup",
+                "/upload_resume",
+                "/test_setup",
+                "/mock_setup",
+                "/test",
+                "/mock"
+            ]
         
         documents = []
         metadatas = []
         ids = []
         
-        print("🔄 Starting website indexing...")
+        print(" Starting website indexing...")
+        print(f" Pages to index: {len(pages)}")
         
         for i, page in enumerate(pages):
             url = f"{self.base_url}{page}"
-            print(f"📄 Scraping: {url}")
             
             page_data = self.scrape_page(url)
             if page_data and page_data["content"]:
@@ -225,7 +276,7 @@ class WebsiteKnowledgeBase:
         
         # Create embeddings and add to ChromaDB
         if documents:
-            print(f"💾 Indexing {len(documents)} document chunks...")
+            print(f" Indexing {len(documents)} document chunks...")
             
             # Clear existing collection
             try:
@@ -234,21 +285,25 @@ class WebsiteKnowledgeBase:
                     name="website_content",
                     metadata={"description": "Interview Bot website content"}
                 )
-            except:
-                pass
+            except Exception as e:
+                print(f"  Collection handling: {e}")
             
+            # Generate embeddings (this is memory intensive)
+            print(" Generating embeddings...")
             embeddings = self.embedding_model.encode(documents).tolist()
             
+            # Add to collection
+            print(" Adding to ChromaDB...")
             self.collection.add(
                 documents=documents,
                 embeddings=embeddings,
                 metadatas=metadatas,
                 ids=ids
             )
-            print("✅ Website indexing complete!")
-            print(f"📊 Indexed {len(documents)} chunks from {len(pages)} pages")
+            print(" Website indexing complete!")
+            print(f" Indexed {len(documents)} chunks from {len(pages)} pages")
         else:
-            print("❌ No documents to index")
+            print(" No documents to index")
     
     def _chunk_text(self, text: str, chunk_size: int = 500) -> List[str]:
         """Split text into smaller chunks"""
@@ -295,34 +350,56 @@ class WebsiteKnowledgeBase:
             
             return formatted_results
         except Exception as e:
-            print(f"Search error: {e}")
+            print(f" Search error: {e}")
             return []
+    
+    def health_check(self) -> Dict[str, any]:
+        """Check if knowledge base is healthy"""
+        try:
+            count = self.collection.count()
+            return {
+                "status": "healthy",
+                "base_url": self.base_url,
+                "document_count": count,
+                "model": self._model_name
+            }
+        except Exception as e:
+            return {
+                "status": "unhealthy",
+                "error": str(e)
+            }
 
 # Utility function to manually index the website
 if __name__ == "__main__":
-    print("🚀 Starting Website Knowledge Base Indexing...")
-    print("⚠️  Make sure your frontend is running on http://localhost:5173")
+    print(" Starting Website Knowledge Base Indexing...")
     print()
     
     kb = WebsiteKnowledgeBase()
+    
+    # Check health
+    health = kb.health_check()
+    print(f" Health: {health}")
+    print()
+    
+    # Index website
     kb.index_website()
     
     print()
-    print("🧪 Testing search functionality...")
+    print(" Testing search functionality...")
     results = kb.search("how to upload resume", n_results=2)
     if results:
-        print(f"✅ Search working! Found {len(results)} results")
-        print(f"📄 Sample result: {results[0]['content'][:100]}...")
+        print(f" Search working! Found {len(results)} results")
+        print(f" Sample result: {results[0]['content'][:100]}...")
     else:
-        print("⚠️  Search returned no results")
+        print("  Search returned no results")
     
     print()
-    print("🧪 Testing question extraction...")
+    print(" Testing question extraction...")
     question = kb.extract_current_question("/test")
     if question:
-        print(f"✅ Question extraction working!")
-        print(f"📝 Question: {question['question'][:100]}...")
+        print(f" Question extraction working!")
+        print(f" Question: {question['question'][:100]}...")
         if question['options']:
-            print(f"📋 Options found: {len(question['options'])}")
+            print(f" Options found: {len(question['options'])}")
     else:
-        print("⚠️  Could not extract question (page might not have active question)")
+        print("  Could not extract question (page might not have active question)")

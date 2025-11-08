@@ -1,7 +1,7 @@
 const API_URL = import.meta.env.VITE_BASE_URL || 'http://localhost:8000';
 
 const DashboardServices = {
-  // ✅ Get Authorization header
+  //  Get Authorization header
   getAuthHeader() {
     try {
       const user = JSON.parse(localStorage.getItem("user"));
@@ -15,7 +15,7 @@ const DashboardServices = {
     }
   },
 
-  // ✅ Save test result (WITH AUTH)
+  //  Save test result (WITH AUTH)
   saveTestResult: async (testData) => {
     try {
       const headers = {
@@ -41,7 +41,7 @@ const DashboardServices = {
     }
   },
 
-  // ✅ Get test history (WITH AUTH)
+  //  Get test history (WITH AUTH)
   getTestHistory: async (limit = 10, userId = null) => {
     try {
       const params = new URLSearchParams({ limit: limit.toString() });
@@ -64,7 +64,7 @@ const DashboardServices = {
     }
   },
 
-  // ✅ Get test detail (WITH AUTH)
+  //  Get test detail (WITH AUTH)
   getTestDetail: async (testId) => {
     try {
       const response = await fetch(`${API_URL}/dashboard/test/${testId}`, {
@@ -84,7 +84,7 @@ const DashboardServices = {
     }
   },
 
-  // ✅ Get dashboard stats (WITH AUTH)
+  //  Get dashboard stats (WITH AUTH)
   getDashboardStats: async (userId = null) => {
     try {
       const params = userId ? `?user_id=${userId}` : '';
@@ -106,7 +106,7 @@ const DashboardServices = {
     }
   },
 
-  // ✅ Download report (WITH AUTH)
+  //  Download report (WITH AUTH)
   downloadReport: async (testId) => {
     try {
       const response = await fetch(`${API_URL}/dashboard/download_report/${testId}`, {

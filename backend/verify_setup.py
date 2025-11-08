@@ -31,19 +31,19 @@ def verify_setup():
             # Mask sensitive values
             if "KEY" in var or "SECRET" in var:
                 masked = value[:10] + "..." if len(value) > 10 else "***"
-                print(f"✅ {var} - Set ({masked})")
+                print(f" {var} - Set ({masked})")
             else:
-                print(f"✅ {var} - Set ({value})")
+                print(f" {var} - Set ({value})")
     
     print()
     
     if missing_vars:
-        print(f"❌ ERROR: Missing {len(missing_vars)} required environment variable(s)")
+        print(f" ERROR: Missing {len(missing_vars)} required environment variable(s)")
         print("Please check your .env file")
         return False
     
     # Test MongoDB connection
-    print("🔗 Testing MongoDB connection...")
+    print(" Testing MongoDB connection...")
     try:
         import motor.motor_asyncio
         import asyncio
@@ -60,17 +60,17 @@ def verify_setup():
         
         result = asyncio.run(test_connection())
         if result:
-            print("✅ MongoDB connection successful\n")
+            print(" MongoDB connection successful\n")
         else:
-            print("❌ MongoDB connection failed\n")
+            print(" MongoDB connection failed\n")
             return False
             
     except Exception as e:
-        print(f"❌ MongoDB connection failed: {e}\n")
+        print(f" MongoDB connection failed: {e}\n")
         return False
     
     # Test JWT
-    print("🔐 Testing JWT functionality...")
+    print(" Testing JWT functionality...")
     try:
         import jwt
         from datetime import datetime, timedelta, timezone
@@ -81,18 +81,18 @@ def verify_setup():
         decoded = jwt.decode(token, secret, algorithms=["HS256"])
         
         if decoded["sub"] == "test_user":
-            print("✅ JWT encoding/decoding works\n")
+            print(" JWT encoding/decoding works\n")
         else:
-            print("❌ JWT test failed\n")
+            print(" JWT test failed\n")
             return False
             
     except Exception as e:
-        print(f"❌ JWT test failed: {e}\n")
+        print(f" JWT test failed: {e}\n")
         return False
     
     # All checks passed
     print("=" * 50)
-    print("✅ All checks passed! Backend is ready to start.")
+    print(" All checks passed! Backend is ready to start.")
     print("=" * 50)
     print("\nTo start the server, run:")
     print("  uv run uvicorn main:app --reload")
@@ -105,8 +105,8 @@ if __name__ == "__main__":
         success = verify_setup()
         sys.exit(0 if success else 1)
     except KeyboardInterrupt:
-        print("\n\n⚠️ Setup verification cancelled")
+        print("\n\n Setup verification cancelled")
         sys.exit(1)
     except Exception as e:
-        print(f"\n❌ Unexpected error: {e}")
+        print(f"\nUnexpected error: {e}")
         sys.exit(1)

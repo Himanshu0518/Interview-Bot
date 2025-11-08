@@ -8,7 +8,7 @@ import sys
 from dotenv import load_dotenv
 
 def verify_chatbot_setup():
-    print("🤖 Verifying Chatbot Backend Setup...\n")
+    print(" Verifying Chatbot Backend Setup...\n")
     
     # Load environment variables
     load_dotenv()
@@ -26,25 +26,25 @@ def verify_chatbot_setup():
     for var, description in required_vars.items():
         value = os.getenv(var)
         if not value:
-            print(f"❌ {var} - Missing")
+            print(f" {var} - Missing")
             missing_vars.append(var)
         else:
             # Mask sensitive values
             if "KEY" in var or "SECRET" in var:
                 masked = value[:10] + "..." if len(value) > 10 else "***"
-                print(f"✅ {var} - Set ({masked})")
+                print(f" {var} - Set ({masked})")
             else:
-                print(f"✅ {var} - Set ({value})")
+                print(f" {var} - Set ({value})")
     
     print()
     
     if missing_vars:
-        print(f"❌ ERROR: Missing {len(missing_vars)} required environment variable(s)")
+        print(f" ERROR: Missing {len(missing_vars)} required environment variable(s)")
         print("Please check your .env file")
         return False
     
     # Test MongoDB connection
-    print("🔗 Testing MongoDB connection...")
+    print(" Testing MongoDB connection...")
     try:
         import motor.motor_asyncio
         import asyncio
@@ -62,9 +62,9 @@ def verify_chatbot_setup():
         
         result = asyncio.run(test_connection())
         if result:
-            print("✅ MongoDB connection successful\n")
+            print(" MongoDB connection successful\n")
         else:
-            print("❌ MongoDB connection failed\n")
+            print(" MongoDB connection failed\n")
             return False
             
     except Exception as e:
@@ -72,7 +72,7 @@ def verify_chatbot_setup():
         return False
     
     # Test Google Gemini
-    print("🤖 Testing Google Gemini API...")
+    print(" Testing Google Gemini API...")
     try:
         from langchain_google_genai import ChatGoogleGenerativeAI
         
@@ -85,16 +85,16 @@ def verify_chatbot_setup():
         # Test simple invocation
         response = llm.invoke("Say 'test successful'")
         if "test" in response.content.lower() or "successful" in response.content.lower():
-            print("✅ Google Gemini API working\n")
+            print(" Google Gemini API working\n")
         else:
-            print("⚠️ Gemini responded but unexpected content\n")
+            print(" Gemini responded but unexpected content\n")
             
     except Exception as e:
-        print(f"❌ Google Gemini API test failed: {e}\n")
+        print(f" Google Gemini API test failed: {e}\n")
         return False
     
     # Test ChromaDB
-    print("💾 Testing ChromaDB...")
+    print(" Testing ChromaDB...")
     try:
         import chromadb
         from chromadb.config import Settings
@@ -102,14 +102,14 @@ def verify_chatbot_setup():
         client = chromadb.Client(Settings(
             anonymized_telemetry=False
         ))
-        print("✅ ChromaDB initialized\n")
+        print(" ChromaDB initialized\n")
             
     except Exception as e:
-        print(f"❌ ChromaDB test failed: {e}\n")
+        print(f" ChromaDB test failed: {e}\n")
         return False
     
     # Test Sentence Transformers
-    print("🧠 Testing Sentence Transformers...")
+    print(" Testing Sentence Transformers...")
     try:
         from sentence_transformers import SentenceTransformer
         
@@ -122,19 +122,19 @@ def verify_chatbot_setup():
         embedding = model.encode([test_text])
         
         if embedding is not None and len(embedding) > 0:
-            print(f"✅ Sentence Transformers working (embedding size: {len(embedding[0])})\n")
+            print(f" Sentence Transformers working (embedding size: {len(embedding[0])})\n")
         else:
-            print("❌ Embedding generation failed\n")
+            print(" Embedding generation failed\n")
             return False
             
     except Exception as e:
-        print(f"❌ Sentence Transformers test failed: {e}\n")
+        print(f" Sentence Transformers test failed: {e}\n")
         print("Note: First run downloads the model, this may take a while...\n")
         return False
     
     # All checks passed
     print("=" * 60)
-    print("✅ All checks passed! Chatbot backend is ready to start.")
+    print(" All checks passed! Chatbot backend is ready to start.")
     print("=" * 60)
     print("\nTo start the chatbot server, run:")
     print("  python main.py")
@@ -150,10 +150,10 @@ if __name__ == "__main__":
         success = verify_chatbot_setup()
         sys.exit(0 if success else 1)
     except KeyboardInterrupt:
-        print("\n\n⚠️ Setup verification cancelled")
+        print("\n\n Setup verification cancelled")
         sys.exit(1)
     except Exception as e:
-        print(f"\n❌ Unexpected error: {e}")
+        print(f"\n Unexpected error: {e}")
         import traceback
         traceback.print_exc()
         sys.exit(1)

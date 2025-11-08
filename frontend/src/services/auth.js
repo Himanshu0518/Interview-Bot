@@ -7,7 +7,7 @@ class AuthServices {
     this.API_URL = `${this.BASE_URL}/auth`;
   }
 
-  // ✅ Register new user
+  //  Register new user
   async register({ username, email, password }) {
     try {
       const response = await fetch(`${this.API_URL}/register`, {
@@ -52,7 +52,7 @@ class AuthServices {
     }
   }
 
-  // ✅ Login user
+  //  Login user
   async login({ username, password }) {
     try {
       const response = await fetch(`${this.API_URL}/token`, {
@@ -123,7 +123,7 @@ class AuthServices {
     localStorage.removeItem("user");
   }
 
-  // ✅ Get current user
+  //  Get current user
   getCurrentUser() {
     try {
       const user = localStorage.getItem("user");

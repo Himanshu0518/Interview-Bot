@@ -93,7 +93,7 @@ const DeepgramDictaphone = ({ userAnswer, setUserAnswer, isSubmitted }) => {
         const ws = new WebSocket(wsUrl, ['token', DEEPGRAM_API_KEY]);
         
         ws.onopen = () => {
-          console.log('✅ Deepgram WebSocket connected');
+          console.log(' Deepgram WebSocket connected');
           setConnectionStatus('connected');
           setDebugInfo('Connected to Deepgram');
           setError(null);
@@ -103,7 +103,7 @@ const DeepgramDictaphone = ({ userAnswer, setUserAnswer, isSubmitted }) => {
         ws.onmessage = (message) => {
           try {
             const data = JSON.parse(message.data);
-            console.log('📩 Received message from Deepgram:', data);
+            console.log(' Received message from Deepgram:', data);
             
             // Check for different message types
             if (data.type === 'Results') {
@@ -112,7 +112,7 @@ const DeepgramDictaphone = ({ userAnswer, setUserAnswer, isSubmitted }) => {
                 const transcript = alternatives[0].transcript;
                 const isFinal = data.is_final;
                 
-                console.log('📝 Transcript:', transcript, '| Final:', isFinal);
+                console.log('Transcript:', transcript, '| Final:', isFinal);
                 setDebugInfo(`Received: "${transcript}" (${isFinal ? 'final' : 'interim'})`);
                 
                 if (transcript && transcript.trim() !== '') {
@@ -120,7 +120,7 @@ const DeepgramDictaphone = ({ userAnswer, setUserAnswer, isSubmitted }) => {
                     // Final transcript - append permanently
                     transcriptRef.current += transcript + ' ';
                     setUserAnswer(transcriptRef.current);
-                    console.log('✅ Final transcript saved:', transcriptRef.current);
+                    console.log('Final transcript saved:', transcriptRef.current);
                   } else {
                     // Interim transcript - show temporarily
                     const currentFinal = transcriptRef.current;
@@ -129,9 +129,9 @@ const DeepgramDictaphone = ({ userAnswer, setUserAnswer, isSubmitted }) => {
                 }
               }
             } else if (data.type === 'Metadata') {
-              console.log('📊 Metadata:', data);
+              console.log(' Metadata:', data);
             } else {
-              console.log('ℹ️ Other message type:', data.type);
+              console.log('ℹOther message type:', data.type);
             }
           } catch (err) {
             console.error('Error parsing Deepgram message:', err);
@@ -140,7 +140,7 @@ const DeepgramDictaphone = ({ userAnswer, setUserAnswer, isSubmitted }) => {
         };
 
         ws.onerror = (error) => {
-          console.error('❌ Deepgram WebSocket error:', error);
+          console.error(' Deepgram WebSocket error:', error);
           setError('WebSocket connection error. Please check your internet connection.');
           setDebugInfo('WebSocket error');
           setConnectionStatus('disconnected');
@@ -178,7 +178,7 @@ const DeepgramDictaphone = ({ userAnswer, setUserAnswer, isSubmitted }) => {
 
   const startAudioStream = useCallback(async (ws) => {
     try {
-      console.log('🎤 Requesting microphone access...');
+      console.log(' Requesting microphone access...');
       setDebugInfo('Requesting microphone...');
       
       // Request microphone access with specific constraints
@@ -194,7 +194,7 @@ const DeepgramDictaphone = ({ userAnswer, setUserAnswer, isSubmitted }) => {
 
       streamRef.current = stream;
       setMicPermission('granted');
-      console.log('✅ Microphone access granted');
+      console.log(' Microphone access granted');
       setDebugInfo('Microphone access granted');
 
       // Create MediaRecorder with appropriate mime type
@@ -215,25 +215,25 @@ const DeepgramDictaphone = ({ userAnswer, setUserAnswer, isSubmitted }) => {
 
       mediaRecorder.ondataavailable = (event) => {
         if (event.data.size > 0 && ws.readyState === WebSocket.OPEN && isListeningRef.current) {
-          console.log('📤 Sending audio chunk:', event.data.size, 'bytes');
+          console.log(' Sending audio chunk:', event.data.size, 'bytes');
           ws.send(event.data);
           setDebugInfo(`Sending audio: ${event.data.size} bytes`);
         }
       };
 
       mediaRecorder.onerror = (event) => {
-        console.error('❌ MediaRecorder error:', event);
+        console.error(' MediaRecorder error:', event);
         setError('Audio recording error');
         setDebugInfo('Recording error');
       };
 
       mediaRecorder.onstart = () => {
-        console.log('✅ MediaRecorder started');
+        console.log(' MediaRecorder started');
         setDebugInfo('Recording started');
       };
 
       mediaRecorder.onstop = () => {
-        console.log('⏹️ MediaRecorder stopped');
+        console.log(' MediaRecorder stopped');
         setDebugInfo('Recording stopped');
       };
 
@@ -241,7 +241,7 @@ const DeepgramDictaphone = ({ userAnswer, setUserAnswer, isSubmitted }) => {
       mediaRecorder.start(250); // Send data every 250ms
       mediaRecorderRef.current = mediaRecorder;
 
-      console.log('✅ Audio stream started successfully');
+      console.log(' Audio stream started successfully');
       
     } catch (err) {
       console.error('Failed to start audio stream:', err);
@@ -265,7 +265,7 @@ const DeepgramDictaphone = ({ userAnswer, setUserAnswer, isSubmitted }) => {
       return;
     }
 
-    console.log('▶️ Starting Deepgram speech recognition...');
+    console.log(' Starting Deepgram speech recognition...');
     setError(null);
     setIsInitializing(true);
     setDebugInfo('Initializing...');
@@ -283,7 +283,7 @@ const DeepgramDictaphone = ({ userAnswer, setUserAnswer, isSubmitted }) => {
       setIsListening(true);
       transcriptRef.current = userAnswer; // Keep existing text
       
-      console.log('✅ Recording started successfully');
+      console.log(' Recording started successfully');
       setDebugInfo('Recording... Speak now!');
       
     } catch (err) {
@@ -297,7 +297,7 @@ const DeepgramDictaphone = ({ userAnswer, setUserAnswer, isSubmitted }) => {
   }, [isListening, isSubmitted, isInitializing, initializeDeepgram, startAudioStream, cleanup, userAnswer]);
 
   const handleStop = useCallback(() => {
-    console.log('⏹️ Stopping Deepgram speech recognition...');
+    console.log(' Stopping Deepgram speech recognition...');
     
     isListeningRef.current = false;
     setIsListening(false);
@@ -323,7 +323,7 @@ const DeepgramDictaphone = ({ userAnswer, setUserAnswer, isSubmitted }) => {
   }, [cleanup, setUserAnswer]);
 
   const handleReset = useCallback(() => {
-    console.log('🔄 Resetting...');
+    console.log(' Resetting...');
     
     if (isListening) {
       handleStop();

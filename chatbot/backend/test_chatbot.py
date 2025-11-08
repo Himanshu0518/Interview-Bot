@@ -15,19 +15,19 @@ def test_connection():
     try:
         response = requests.get(f"{API_BASE_URL}/")
         if response.status_code == 200:
-            print("✅ Chatbot backend is running")
+            print(" Chatbot backend is running")
             return True
         else:
-            print("❌ Chatbot backend returned error")
+            print(" Chatbot backend returned error")
             return False
     except requests.exceptions.ConnectionError:
-        print("❌ Cannot connect to chatbot backend")
+        print(" Cannot connect to chatbot backend")
         print("   Make sure it's running: python main.py")
         return False
 
 def test_normal_chat():
     """Test normal conversation mode"""
-    print("\n🧪 Testing Normal Chat Mode...")
+    print("\n Testing Normal Chat Mode...")
     
     payload = {
         "user_id": TEST_USER_ID,
@@ -42,18 +42,18 @@ def test_normal_chat():
         if data.get("messages"):
             last_msg = data["messages"][-1]
             content = last_msg['content'][:80].replace('\n', ' ')
-            print(f"✅ Bot responded: {content}...")
+            print(f" Bot responded: {content}...")
             return True
         else:
-            print("❌ No response from bot")
+            print(" No response from bot")
             return False
     except Exception as e:
-        print(f"❌ Error: {e}")
+        print(f" Error: {e}")
         return False
 
 def test_interview_setup():
     """Test interview setup flow"""
-    print("\n🧪 Testing Interview Setup Mode...")
+    print("\n Testing Interview Setup Mode...")
     
     conversation = [
         "I want to start an interview",
@@ -97,7 +97,7 @@ def test_interview_setup():
                 if i == len(conversation) - 1:
                     if data.get("should_launch_interview"):
                         params = data.get("interview_params", {})
-                        print(f"\n✅ Interview setup complete!")
+                        print(f"\n Interview setup complete!")
                         print(f"   Format: {params.get('interview_format')}")
                         print(f"   Type: {params.get('interview_type')}")
                         print(f"   Role: {params.get('role')}")
@@ -105,7 +105,7 @@ def test_interview_setup():
                         print(f"   Questions: {params.get('num_questions')}")
                         return True
                     else:
-                        print(f"\n⚠️  Setup completed but should_launch_interview is False")
+                        print(f"\n  Setup completed but should_launch_interview is False")
                         print(f"   Mode: {data.get('mode', 'unknown')}")
                         print(f"   Awaiting confirmation: {data.get('awaiting_confirmation', 'unknown')}")
                         print(f"   Interview params: {data.get('interview_params', {})}")
@@ -126,7 +126,7 @@ def test_interview_setup():
 
 def test_help_mode():
     """Test contextual help mode"""
-    print("\n🧪 Testing Help Mode (during interview)...")
+    print("\n Testing Help Mode (during interview)...")
     
     payload = {
         "user_id": TEST_USER_ID,
@@ -142,13 +142,13 @@ def test_help_mode():
         if data.get("messages"):
             last_msg = data["messages"][-1]
             content = last_msg['content'][:100].replace('\n', ' ')
-            print(f"✅ Bot helped: {content}...")
+            print(f" Bot helped: {content}...")
             return True
         else:
-            print("❌ No help response")
+            print(" No help response")
             return False
     except Exception as e:
-        print(f"❌ Error: {e}")
+        print(f" Error: {e}")
         return False
 
 def main():
@@ -162,7 +162,7 @@ def main():
     results.append(("Connection", test_connection()))
     
     if not results[0][1]:
-        print("\n❌ Cannot proceed with tests - backend not running")
+        print("\n Cannot proceed with tests - backend not running")
         sys.exit(1)
     
     # Test 2: Normal Chat
@@ -181,7 +181,7 @@ def main():
     
     passed = 0
     for test_name, result in results:
-        status = "✅ PASSED" if result else "❌ FAILED"
+        status = " PASSED" if result else "❌ FAILED"
         print(f"{test_name:20s} : {status}")
         if result:
             passed += 1
@@ -194,7 +194,7 @@ def main():
         print("\n🎉 All tests passed! Chatbot is working correctly!")
         sys.exit(0)
     else:
-        print("\n⚠️  Some tests failed. Check the errors above.")
+        print("\n  Some tests failed. Check the errors above.")
         sys.exit(1)
 
 if __name__ == "__main__":

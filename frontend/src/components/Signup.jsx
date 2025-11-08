@@ -7,6 +7,7 @@ import {useDispatch} from 'react-redux'
 import {useForm} from 'react-hook-form'
 import TestServices from '../services/resume'
 import {setResume} from '../features/resumeSlice'
+import {Info} from 'lucide-react'
 
 function Signup() {
     const navigate = useNavigate()
@@ -72,6 +73,15 @@ function Signup() {
                         <p className="text-gray-600 font-medium">
                             Sign up to get started
                         </p>
+                        {isLoading && 
+  <div className="flex gap-2 items-center justify-center p-3 rounded-lg bg-yellow-100 border border-yellow-300">
+    <Info className="w-5 h-5 text-yellow-600" />
+    <span className="text-yellow-800 text-sm font-medium">
+      Your first signup may take a moment — please wait...
+    </span>
+  </div>
+}
+
                     </div>
 
                     {/* Error message */}
