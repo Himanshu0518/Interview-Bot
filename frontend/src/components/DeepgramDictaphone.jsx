@@ -1,7 +1,7 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { Mic, Square, RotateCcw, AlertCircle, CheckCircle, Wifi } from "lucide-react";
 
-const DEEPGRAM_API_KEY = import.meta.env.VITE_DEEPGRAM_API_KEY || 'f731354f7b1dc142ffac7d855d1800f731f782c2';
+const DEEPGRAM_API_KEY = import.meta.env.VITE_DEEPGRAM_API_KEY ;
 
 const DeepgramDictaphone = ({ userAnswer, setUserAnswer, isSubmitted }) => {
   const [isListening, setIsListening] = useState(false);

@@ -5,7 +5,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import Chatbot from "../components/Chatbot";
 import { useSelector } from 'react-redux';
 import DashboardServices from '../services/dashboard';
-import DeepgramDictaphone from "../components/DeepgramDictaphone";
+import { toast } from 'react-toastify';
 
 function MockPage() {
   const [activeIndex, setActiveIndex] = useState(0);

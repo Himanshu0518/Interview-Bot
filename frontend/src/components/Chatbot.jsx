@@ -52,7 +52,7 @@ const Chatbot = ({
     }
   }, [userId]);
 
-  //  SAVE conversation to sessionStorage whenever it changes
+
   useEffect(() => {
     if (messages.length > 0 || sessionId || interviewParams) {
       try {

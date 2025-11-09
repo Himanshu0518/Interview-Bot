@@ -1,14 +1,12 @@
-import { useState, useEffect } from 'react';
+
 import { ChevronRight, Star, Users, Award, ArrowRight, Sparkles } from 'lucide-react';
 import GuideCard from '../components/GuideCard';
 import PracticeButton from '../components/PracticeButton';
 
 function Home() {
-  const [isVisible, setIsVisible] = useState(false);
+  
 
-  useEffect(() => {
-    setIsVisible(true);
-  }, []);
+ 
 
   return (
     <div className="min-h-screen">
