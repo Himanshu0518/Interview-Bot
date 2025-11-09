@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import DashboardServices from '../services/dashboard';
-import { useSelector } from 'react-redux';
+import {toast} from 'react-toastify';
 import { 
   Download, 
   TrendingUp, 
@@ -18,7 +18,7 @@ import {
   Eye,
   ArrowLeft
 } from 'lucide-react';
-import Modal from '../components/Modal';
+
 
 function Dashboard() {
   const [stats, setStats] = useState(null);
@@ -28,9 +28,10 @@ function Dashboard() {
   const [downloading, setDownloading] = useState(null);
   const [error, setError] = useState(null);
   const [expandedQuestions, setExpandedQuestions] = useState({});
-  const user = useSelector(state => state.auth.user);
+ // const user = useSelector(state => state.auth.user);
   const navigate = useNavigate();
 
+  
   useEffect(() => {
     fetchDashboardData();
   }, []);
@@ -129,7 +130,7 @@ function Dashboard() {
 
   if (loading && !selectedTest) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-gray-950 dark:to-black">
+      <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-gray-950 dark:to-black">
         <div className="text-center">
           <Loader2 className="w-12 h-12 animate-spin text-blue-600 mx-auto mb-4" />
           <p className="text-gray-600 dark:text-gray-300">Loading your dashboard...</p>
@@ -140,7 +141,7 @@ function Dashboard() {
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-gray-950 dark:to-black p-4">
+      <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-gray-950 dark:to-black p-4">
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 max-w-md w-full">
           <p className="text-red-600 dark:text-red-400 mb-4">{error}</p>
           <button

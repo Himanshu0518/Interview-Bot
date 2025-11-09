@@ -25,7 +25,7 @@ import AuthLayout from "./layout/AuthLayout";
 import MockPage from "./pages/MockPage";
 import MockSetUpPage from "./pages/MockSetUp";
 import Dashboard from "./pages/Dashboard";
-import { ToastContainer } from 'react-toastify';
+import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const router = createBrowserRouter(
@@ -39,13 +39,13 @@ const router = createBrowserRouter(
       {/* Public Routes */}
       <Route path="login" element={<Login />} />
       <Route path="signup" element={<Signup />} />
-      <Route path="dashboard" element={<Dashboard />} /> {}
 
       {/* Protected Routes */}
       <Route element={<AuthLayout authentication={true} />}>
         <Route path="upload_resume" element={<UploadResume />} />
         <Route path="test_setup" element={<TestSetup />} />
         <Route path="test" element={<TestPage />} />
+        <Route path="dashboard" element={<Dashboard />} />
         <Route path="mock" element={<MockPage />} />
         <Route path="mock_setup" element={<MockSetUpPage />} />
       </Route>
@@ -62,17 +62,16 @@ createRoot(document.getElementById("root")).render(
       <Provider store={store}>
         <RouterProvider router={router} />
       </Provider>
-     <ToastContainer
+      <ToastContainer
         position="top-right"
-        autoClose={3000}  // Toast auto disappears in 3 seconds
+        autoClose={3000} // Toast auto disappears in 3 seconds
         hideProgressBar={false}
         newestOnTop={false}
         closeOnClick
         pauseOnHover
         draggable
-        theme="colored"  // "light" | "dark" | "colored"
+        theme="colored" // "light" | "dark" | "colored"
       />
-
     </ThemeProvider>
   </StrictMode>
 );
