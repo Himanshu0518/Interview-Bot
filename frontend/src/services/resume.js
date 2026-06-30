@@ -65,7 +65,31 @@ class TestServices {
     }
   }
   
+  //  Get resume sync status (GET /resume_status) — used for post-upload polling
+  async get_resume_status() {
+    try {
+      const response = await fetch(`${this.BASE_URL}/resume_status`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          ...this.getAuthHeader(),
+        },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.text();
+        throw new Error(`Resume status check failed: ${response.status} - ${errorData}`);
+      }
+
+      return await response.json(); // { synced: bool, updated_at: string | null }
+    } catch (error) {
+      console.error("Get resume status error:", error);
+      throw error;
+    }
+  }
+
   //  Get resume (GET /get_resume)
+
   async get_resume() {
     try {
       const response = await fetch(`${this.BASE_URL}/get_resume`, {

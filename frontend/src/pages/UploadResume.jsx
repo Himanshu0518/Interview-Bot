@@ -4,53 +4,108 @@ import { useDispatch, useSelector } from "react-redux";
 import TestServices from "../services/resume";
 import { useForm } from "react-hook-form";
 import { setResume } from "../features/resumeSlice";
+import { useLocation } from "react-router-dom";
 
 function UploadResume() {
   const { register, handleSubmit, reset } = useForm();
   const dispatch = useDispatch();
+  const location = useLocation();
   const [error, setError] = React.useState(null);
   const [isUploading, setIsUploading] = React.useState(false);
   const [isLoading, setIsLoading] = React.useState(true);
   const [successMessage, setSuccessMessage] = React.useState("");
+  const [isPolling, setIsPolling] = React.useState(false);
   
   // Get resume data from Redux store
   const resumeData = useSelector((state) => state.resume?.data);
   
-  // Fetch resume data on component mount
-React.useEffect(() => {
-  const fetchResumeData = async () => {
-    setIsLoading(true);
-    try {
-      const resume = await TestServices.get_resume();
-      console.log("Fetched resume data:", resume);
-
-      if (resume) {
-        dispatch(setResume(resume));
-      } else {
-        console.warn("No resume data found.");
+  // Re-fetch resume every time user navigates to this page
+  React.useEffect(() => {
+    const fetchResumeData = async () => {
+      setIsLoading(true);
+      try {
+        const resume = await TestServices.get_resume();
+        console.log("Fetched resume data:", resume);
+        if (resume) {
+          dispatch(setResume(resume));
+        } else {
+          console.warn("No resume data found.");
+        }
+      } catch (error) {
+        console.error("Error fetching resume:", error);
+      } finally {
+        setIsLoading(false);
       }
-    } catch (error) {
-      console.error("Error fetching resume:", error);
-    } finally {
-      setIsLoading(false); 
-    }
-  };
+    };
 
-  fetchResumeData();
-}, [dispatch]);
+    fetchResumeData();
+  }, [dispatch, location.pathname]); // location.pathname changes on every navigation
 
+
+  /**
+   * Poll GET /resume_status until the background DB write is confirmed.
+   * Compares the server-written updated_at timestamp against uploadStartTime
+   * captured just before the upload request fired.
+   *
+   * This correctly handles identical resume re-uploads: even if content is
+   * identical, the background task writes a fresh updated_at that exceeds
+   * uploadStartTime, so the poll always waits for the real write.
+   */
+  const pollForDbConfirmation = React.useCallback(
+    async (uploadStartTime, maxAttempts = 10, intervalMs = 2000) => {
+      setIsPolling(true);
+      let attempt = 0;
+
+      const poll = async () => {
+        attempt++;
+        try {
+          const status = await TestServices.get_resume_status();
+          const serverTs = status?.updated_at
+            ? new Date(status.updated_at).getTime()
+            : null;
+
+          // Background task confirmed: server timestamp is newer than when we uploaded
+          if (serverTs && serverTs > uploadStartTime) {
+            // Fetch the full resume once to sync Redux store from DB
+            const freshResume = await TestServices.get_resume();
+            if (freshResume) dispatch(setResume(freshResume));
+            setIsPolling(false);
+            console.log(`DB write confirmed after ${attempt} attempt(s).`);
+            return;
+          }
+        } catch {
+          // Silently ignore — DB may not be ready yet
+        }
+
+        if (attempt < maxAttempts) {
+          setTimeout(poll, intervalMs);
+        } else {
+          setIsPolling(false);
+          console.warn("Polling timed out — DB write may still be pending.");
+        }
+      };
+
+      setTimeout(poll, intervalMs);
+    },
+    [dispatch]
+  );
 
   const uploadResume = async (file) => {
     setError(null);
     setSuccessMessage("");
     setIsUploading(true);
-    
+    // Capture time BEFORE the request so even slow uploads get the right baseline
+    const uploadStartTime = Date.now();
+
     try {
       const response = await TestServices.upload_resume(file.file[0]);
       if (response) {
-        dispatch(setResume(response)); // store data
-        setSuccessMessage("Resume uploaded successfully!");
-        reset(); // Clear the form
+        // Show parsed data immediately from the upload response
+        dispatch(setResume(response));
+        setSuccessMessage("Resume uploaded and parsed! Syncing to database…");
+        reset();
+        // Poll in background to confirm the async DB save completed
+        pollForDbConfirmation(uploadStartTime);
       }
       console.log("Uploaded resume:", response);
     } catch (err) {
@@ -60,6 +115,7 @@ React.useEffect(() => {
       setIsUploading(false);
     }
   };
+
   const renderEducation = (education) => {
     if (!education || education.length === 0) return null;
     
@@ -77,13 +133,13 @@ React.useEffect(() => {
 
   const renderProjects = (projects) => {
     if (!projects || projects.length === 0) return null;
-    
+
     return projects.map((project, index) => (
-      <div key={index} className="p-4 rounded-lg mb-3">
-        <h4 className="font-semibold text-gray-800 dark:text-gray-100">{project.name || "Project Name"}</h4>
-        <p className="text-gray-600 dark:text-gray-300 text-sm mb-2">{project.description || "No description available"}</p>
+      <div key={index} className="p-4 rounded-lg mb-3 bg-gray-50 dark:bg-gray-700 border-l-4 border-indigo-400 dark:border-indigo-500">
+        <h4 className="font-semibold text-gray-800 dark:text-gray-100">{project.name || "Unnamed Project"}</h4>
+        <p className="text-gray-600 dark:text-gray-300 text-sm mt-1">{project.description || "No description available"}</p>
         {project.technology && (
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-2 mt-2">
             {project.technology.split(',').map((tech, techIndex) => (
               <span key={techIndex} className="bg-blue-100 dark:bg-blue-800 text-blue-800 dark:text-blue-200 px-2 py-1 rounded-full text-xs">
                 {tech.trim()}
@@ -95,9 +151,10 @@ React.useEffect(() => {
     ));
   };
 
+
+
   const renderSkills = (skills) => {
     if (!skills || skills.length === 0) return null;
-    
     return (
       <div className="flex flex-wrap gap-2">
         {skills.map((skill, index) => (
@@ -107,6 +164,28 @@ React.useEffect(() => {
         ))}
       </div>
     );
+  };
+
+  const renderWorkExperiences = (experiences) => {
+    if (!experiences || experiences.length === 0) return null;
+    return experiences.map((exp, index) => (
+      <div key={index} className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg mb-3 border-l-4 border-blue-400 dark:border-blue-500">
+        <div className="flex items-start justify-between gap-2 mb-1">
+          <div>
+            <h4 className="font-semibold text-gray-800 dark:text-gray-100">{exp.role || "Role"}</h4>
+            <p className="text-sm font-medium text-blue-600 dark:text-blue-400">{exp.company || "Company"}</p>
+          </div>
+          {exp.duration && (
+            <span className="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap bg-gray-200 dark:bg-gray-600 px-2 py-1 rounded">
+              {exp.duration}
+            </span>
+          )}
+        </div>
+        {exp.description && (
+          <p className="text-gray-600 dark:text-gray-300 text-sm mt-2">{exp.description}</p>
+        )}
+      </div>
+    ));
   };
 
   return (
@@ -161,11 +240,22 @@ React.useEffect(() => {
 
             {successMessage && (
               <div className="bg-green-50 dark:bg-green-900 border border-green-200 dark:border-green-700 rounded-lg p-4">
-                <div className="flex items-center">
-                  <svg className="w-5 h-5 text-green-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                  </svg>
-                  <p className="text-green-700 dark:text-green-300">{successMessage}</p>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center">
+                    <svg className="w-5 h-5 text-green-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    </svg>
+                    <p className="text-green-700 dark:text-green-300">{successMessage}</p>
+                  </div>
+                  {isPolling && (
+                    <div className="flex items-center text-xs text-green-600 dark:text-green-400 ml-3">
+                      <svg className="animate-spin w-3 h-3 mr-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                      </svg>
+                      Syncing…
+                    </div>
+                  )}
                 </div>
               </div>
             )}
@@ -192,35 +282,51 @@ React.useEffect(() => {
 
         {/* Resume Display Section */}
         <div className="rounded-xl shadow-lg p-6 border border-gray-200 dark:border-gray-700">
-          <div className="flex items-center mb-6">
-            <div className="bg-green-100 dark:bg-green-900 p-3 rounded-full mr-4">
-              <svg className="w-6 h-6 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center">
+              <div className="bg-green-100 dark:bg-green-900 p-3 rounded-full mr-4">
+                <svg className="w-6 h-6 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+              </div>
+              <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Your Resume</h2>
             </div>
-            <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Your Resume</h2>
+
+            {/* Syncing badge — visible only while fetching */}
+            {isLoading && (
+              <div className="flex items-center gap-1.5 text-xs font-medium text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/40 border border-blue-200 dark:border-blue-700 px-3 py-1.5 rounded-full">
+                <svg className="animate-spin w-3.5 h-3.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                </svg>
+                Syncing…
+              </div>
+            )}
           </div>
 
-          {isLoading ? (
-            <div className="flex items-center justify-center py-12">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 dark:border-blue-400"></div>
-              <span className="ml-2 text-gray-600 dark:text-gray-300">Loading resume...</span>
-            </div>
-          ) : resumeData ? (
+          {resumeData ? (
             <div className="space-y-6 max-h-96 overflow-y-auto">
               {/* Personal Info */}
               <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900 dark:to-indigo-900 p-4 rounded-lg border border-blue-200 dark:border-blue-700">
-                <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-2">{resumeData.fname || "User"}</h3>
+                <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-2">{resumeData.name || resumeData.fname || "User"}</h3>
                 <div className="space-y-1 text-sm text-gray-600 dark:text-gray-300">
                   {resumeData.email && <p>📧 {resumeData.email}</p>}
-                  {resumeData.linkedin_url && (
-                    <p>💼 <a href={resumeData.linkedin_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:underline">LinkedIn Profile</a></p>
-                  )}
-                  {resumeData.github_url && (
-                    <p>🔗 <a href={resumeData.github_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:underline">GitHub Profile</a></p>
+                  {resumeData.experience != null && (
+                    <p>🏢 <span className="font-semibold">{resumeData.experience} {resumeData.experience === 1 ? "year" : "years"}</span> of total experience</p>
                   )}
                 </div>
               </div>
+
+              {/* Work Experience */}
+              {resumeData.work_experiences && resumeData.work_experiences.length > 0 && (
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-3 flex items-center">
+                    <span className="p-2 rounded-full mr-2">🏢</span>
+                    Work Experience
+                  </h3>
+                  {renderWorkExperiences(resumeData.work_experiences)}
+                </div>
+              )}
 
               {/* Skills */}
               {resumeData.skills && resumeData.skills.length > 0 && (
