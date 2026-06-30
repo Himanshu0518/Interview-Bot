@@ -1,7 +1,6 @@
 .env
 .python-version
 temp_resume.pdf
-uv.lock
 __pycache__/
 *.py[oc]
 build/
