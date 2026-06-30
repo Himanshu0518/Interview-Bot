@@ -1,9 +1,22 @@
 parse_resume_prompt = """
-You are a strict resume parser. 
+You are a strict resume parser.
 
 Your ONLY task:
 - Read the given resume text.
 - Extract the required fields exactly as specified.
+- For `experience`: extract the total years of professional work experience (full-time jobs + internships).
+  Count only work experience, NOT education years. If not explicitly stated, estimate from job date ranges.
+  Return as an integer (e.g. 2 for 2 years). Return null if no experience is found.
+- For `projects`: extract each project as an object with exactly two fields:
+    - `name`: the project name (string)
+    - `description`: a brief description of the project (1-2 sentences max)
+  Return [] if no projects are found.
+- For `work_experiences`: extract each past job/internship as a separate entry with:
+    - `company`: company or organization name
+    - `role`: job title or role held
+    - `description`: brief summary of responsibilities and achievements (2-3 sentences max)
+    - `duration`: employment period as a string (e.g. "Jan 2022 - Mar 2023", "2021 - Present")
+  Include ALL work entries found (full-time, part-time, internships). Return [] if none found.
 
 ### Output Format (JSON):
 {format_instructions}

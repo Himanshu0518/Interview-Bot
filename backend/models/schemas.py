@@ -2,20 +2,34 @@ from pydantic import BaseModel, EmailStr, Field
 from typing import List, Dict,Annotated, Optional
 from datetime import datetime
 
+class WorkExperience(BaseModel):
+    company: str = ""
+    role: str = ""
+    description: str = ""
+    duration: str = ""  # e.g. "Jan 2022 - Mar 2023"
+
+class Project(BaseModel):
+    name: str = ""
+    description: str = ""
+
 class ParsedResume(BaseModel):
     name: Annotated[str, ...] = "Unknown"
-    linkedin_url: Annotated[str, ...] = ""
+    email: Annotated[EmailStr|None, ...] = None
     skills: Annotated[List[str], ...] = []
     experience: Annotated[int|None, ...] = None
     education: Annotated[List[str], ...] = []
-    projects: Annotated[List[Dict[str, str]], ...] = []
+    projects: Annotated[List[Project], ...] = []
     required_roles: Annotated[List[str], ...] = []
-    github_url: Annotated[str, ...] = ""
-    email: Annotated[EmailStr|None, ...] = None
+    work_experiences: Annotated[List[WorkExperience], ...] = []
 
 class ParsedResumeDB(ParsedResume):
     username: Annotated[str, ...]
     user_id: Annotated[str, ...]
+    updated_at: Optional[datetime] = None
+
+class ResumeStatus(BaseModel):
+    synced: bool
+    updated_at: Optional[datetime] = None
 
 class SingleQues(BaseModel):
     question: str

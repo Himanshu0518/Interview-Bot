@@ -1,7 +1,7 @@
-from fastapi import APIRouter, Depends , File, UploadFile
+from fastapi import APIRouter, Depends, File, UploadFile, HTTPException, BackgroundTasks
 from typing import Annotated, List
 from utils.main_utils import parse_resume , get_questions_from_resume 
-from models.schemas import ParsedResume,ParsedResumeDB,QuestionRequest,QuestionListResponse
+from models.schemas import ParsedResume, ParsedResumeDB, QuestionRequest, QuestionListResponse, ResumeStatus
 from utils.exception import MyException
 from utils.logger import logging
 import sys
@@ -9,7 +9,8 @@ import json
 from connections.mongo_client import MongoDBClient
 from langchain.schema import AIMessage
 from models.auth import TokenData
-import re 
+import re
+from datetime import datetime, timezone
 from routers.auth import get_current_user
 
 main_router = APIRouter()
@@ -24,13 +25,32 @@ def extract_json_from_text(text: str) -> dict:
     except json.JSONDecodeError as e:
         raise ValueError(f"Invalid JSON: {e}")
     
+async def save_resume_to_db(db_resume_data: ParsedResumeDB, user_id: str):
+    """Background task: upsert parsed resume into MongoDB, stamping updated_at."""
+    try:
+        # Stamp the write time so the client can confirm via polling
+        data = db_resume_data.model_dump()
+        data["updated_at"] = datetime.now(timezone.utc)
+
+        current_resume = await client.find_one("Resume", {"user_id": user_id})
+        if current_resume:
+            await client.update_one("Resume", {"user_id": user_id}, data)
+        else:
+            await client.insert_one("Resume", data)
+        logging.info(f"Resume saved to DB for user_id: {user_id}")
+    except Exception as e:
+        logging.exception(f"Background task failed to save resume for user_id: {user_id}")
+        raise MyException(e, sys)
+
+
 @main_router.post("/upload_resume", response_model=ParsedResume)
 async def upload_resume(
     token_data: Annotated[TokenData, Depends(get_current_user)],
+    background_tasks: BackgroundTasks,
     file: UploadFile = File(...)
 ):
     """Upload and parse resume with file validation"""
-    
+
     # Validate file type
     allowed_types = [
         "application/pdf",
@@ -45,7 +65,7 @@ async def upload_resume(
                 "code": 2001
             }
         )
-    
+
     # Validate file size (max 10MB)
     contents = await file.read()
     if len(contents) > 10 * 1024 * 1024:
@@ -57,32 +77,46 @@ async def upload_resume(
                 "code": 2002
             }
         )
-    
-    # Reset file pointer
+
+    # Reset file pointer so parse_resume can read from the beginning
     await file.seek(0)
-    
+
+    # Parse the resume (async — calls AI model)
     try:
         result = await parse_resume(file, ParsedResume)
     except Exception as e:
         raise MyException(e, sys)
 
-    extracted_info = result.model_dump() 
+    extracted_info = result.model_dump()
 
-    db_resume_data = ParsedResumeDB(**extracted_info, username=token_data.username , user_id=token_data.user_id)
-    current_resume = await client.find_one("Resume", {"user_id": token_data.user_id})
-    if current_resume:
-        try:
-            await client.update_one("Resume", {"user_id": token_data.user_id}, db_resume_data.model_dump())
-        except Exception as e:
-            raise MyException(e, sys)
-        
-    else:  
-        try:
-            await client.insert_one("Resume", db_resume_data.model_dump())
-        except Exception as e:
-            raise MyException(e, sys)
-    
+    # Build DB model and dispatch save as a background task
+    db_resume_data = ParsedResumeDB(
+        **extracted_info,
+        username=token_data.username,
+        user_id=token_data.user_id
+    )
+    background_tasks.add_task(save_resume_to_db, db_resume_data, token_data.user_id)
+
+    # Return immediately without waiting for DB write
     return ParsedResume(**extracted_info)
+
+
+@main_router.get("/resume_status", response_model=ResumeStatus)
+async def get_resume_status(token_data: Annotated[TokenData, Depends(get_current_user)]):
+    """
+    Lightweight endpoint for the client to poll after upload.
+    Returns whether a resume exists and when it was last written by the background task.
+    The client compares updated_at against its local uploadStartTime to confirm the write.
+    """
+    try:
+        resume = await client.find_one("Resume", {"user_id": token_data.user_id})
+    except Exception as e:
+        raise MyException(e, sys)
+
+    if not resume:
+        return ResumeStatus(synced=False, updated_at=None)
+
+    return ResumeStatus(synced=True, updated_at=resume.get("updated_at"))
 
 
 @main_router.get("/get_resume", response_model=ParsedResume)
@@ -93,6 +127,7 @@ async def get_resume(token_data:Annotated[TokenData, Depends(get_current_user)])
         raise MyException(e, sys)
 
     return ParsedResume(**resume_data)
+
 
 
 @main_router.post("/get_questions",response_model=QuestionListResponse)
@@ -126,8 +161,8 @@ async def get_questions(token_data:Annotated[TokenData, Depends(get_current_user
     return extracted_info
 
 @main_router.post("/resume_data", response_model=ParsedResume)
-async def post_resume_data(resume_data: List[ParsedResumeDB] , token_data:Annotated[TokenData, Depends(get_current_user)]):
-    db_resume_data = ParsedResumeDB(**resume_data, username=token_data.username)
+async def post_resume_data(resume_data: ParsedResume, token_data: Annotated[TokenData, Depends(get_current_user)]):
+    db_resume_data = ParsedResumeDB(**resume_data.model_dump(), username=token_data.username, user_id=token_data.user_id)
     try:
       
       current_resume = await client.find_one("Resume", {"user_id": token_data.user_id})
@@ -145,5 +180,5 @@ async def post_resume_data(resume_data: List[ParsedResumeDB] , token_data:Annota
         except Exception as e:
             raise MyException(e, sys)
     
-    return ParsedResume(**resume_data)
+    return resume_data
 

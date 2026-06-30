@@ -2,15 +2,19 @@ from langchain_community.document_loaders import PyPDFLoader, Docx2txtLoader, Te
 import os, sys
 from fastapi import HTTPException
 from langchain.prompts import PromptTemplate
-from connections.model_connection import GenerativeAIModel
+from llms.llmFactory import LLMFactory
+from llms.wrapper import protected_invoke
 from utils.promts import parse_resume_prompt, questions_prompt, mock_question_prompt, rating_prompt
 from utils.exception import MyException
 from utils.logger import logging
 from langchain.output_parsers import PydanticOutputParser
+from langchain.schema.output_parser import StrOutputParser
+from langchain_core.prompts import ChatPromptTemplate
 import json
 
+
 # --------- Resume Parsing ---------
-model = GenerativeAIModel()
+llms = LLMFactory.get_all_providers() 
 
 async def parse_resume(file, parser):
     """Extract text from resume and parse into structured JSON."""
@@ -49,16 +53,19 @@ async def parse_resume(file, parser):
         partial_variables = {"format_instructions": parser.get_format_instructions()}
     )
     
-    chain = prompt | model.model | parser
     # Call AI model
     try:
-        response = await chain.ainvoke({"resume_text": resume_text}) # async safe
+        for model in llms:
+            chain = prompt | model | parser
+            result = await protected_invoke(chain, {"resume_text": resume_text})
+            if result:
+                return result
     except Exception as e:
         logging.exception("Error generating AI response for resume parsing")
         raise MyException(e, sys)
 
     logging.info("Resume parsed successfully")
-    return response
+  
 
 
 async def get_questions_from_resume(parser, input_data: dict):
@@ -70,21 +77,34 @@ async def get_questions_from_resume(parser, input_data: dict):
         input_variables=["resume_text", "num_questions", "difficulty_level", "interview_type", "interview_description","target_companies"],
         partial_variables={"format_instructions": parser.get_format_instructions()},
     )
-    chain = prompt | model.model | parser
-    response = await chain.ainvoke(input_data)
+    try:
+        for model in llms:
+            chain = prompt | model | parser
+            result = await protected_invoke(chain, input_data)
+            if result:
+                return result
+    except Exception as e:
+        logging.exception("Error generating AI response for resume parsing")
+        raise MyException(e, sys)
     
     logging.info("Questions generated successfully from AI")
 
-    return response
 
-
-def get_bot_ans(question: str):
+async def get_bot_ans(question: str):
     """Return the answer given by the bot for a question."""
+    str_parser = StrOutputParser()
+    prompt = ChatPromptTemplate.from_messages([
+        ("human", "{question}")
+    ])
     try:
-     response = model.get_general_query(question)
+        for model in llms:
+            chain = prompt | model | str_parser
+            result = await protected_invoke(chain, {"question": question})
+            if result:
+                return result
     except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
-    return response
+        logging.exception("Error generating AI response for bot answer")
+        raise MyException(e, sys)
 
 async def get_mock_questions( input_data: dict,parser=None):
     """Generate interview questions with answers from resume info."""
@@ -96,9 +116,19 @@ async def get_mock_questions( input_data: dict,parser=None):
     )
     
     
-    chain = prompt | model.model | parser
-    response = await chain.ainvoke(input_data)
-    return response
+    # chain = prompt | model.model | parser
+    # response = await chain.ainvoke(input_data)
+    try:
+        for model in llms:
+            chain = prompt | model | parser
+            result = await protected_invoke(chain, input_data)
+            if result:
+                return result
+    except Exception as e:
+        logging.exception("Error generating AI response for resume parsing")
+        raise MyException(e, sys)
+    
+    logging.info("Questions generated successfully from AI")
 
    
 async def get_mock_rating(input_data:dict,parser):
@@ -109,6 +139,15 @@ async def get_mock_rating(input_data:dict,parser):
         partial_variables={"format_instructions": parser.get_format_instructions()},
     )
     
-    chain = prompt | model.model | parser
-    response = await chain.ainvoke(input_data)
-    return response
+    try:
+        for model in llms:
+            chain = prompt | model | parser
+            result = await protected_invoke(chain, input_data)
+            if result:
+                return result
+    except Exception as e:
+        logging.exception("Error generating AI response for rating")
+        raise MyException(e, sys)
+    
+    logging.info("Rating generated successfully from AI")
+   
