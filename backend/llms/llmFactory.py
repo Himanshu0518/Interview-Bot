@@ -44,4 +44,4 @@ class LLMFactory:
 
     @staticmethod
     def get_all_providers():
-        return [LLMFactory.gemini(), LLMFactory.groq(), LLMFactory.grok()]
+        return [ LLMFactory.groq(),LLMFactory.gemini(), LLMFactory.grok()]

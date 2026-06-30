@@ -1,5 +1,5 @@
 # Dashboard Router - Test History & Report Generation (AUTH PROTECTED)
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, Request
 from fastapi.responses import StreamingResponse
 from typing import Optional, Annotated
 from models.schemas import TestResultCreate
@@ -14,6 +14,7 @@ from reportlab.lib import colors
 from reportlab.lib.enums import TA_CENTER
 from routers.auth import get_current_user
 from models.auth import TokenData
+from limiter import limiter
 import io
 
 dashboard_router = APIRouter(
@@ -28,7 +29,9 @@ client = MongoDBClient()
 # SAVE TEST RESULT (PROTECTED)
 # ---------------------------
 @dashboard_router.post("/save_test", status_code=201)
+@limiter.limit("5/minute")
 async def save_test_result(
+    request: Request,
     test_data: TestResultCreate,
     token_data: Annotated[TokenData, Depends(get_current_user)]
 ):
@@ -62,7 +65,9 @@ async def save_test_result(
 # TEST HISTORY (PROTECTED)
 # ---------------------------
 @dashboard_router.get("/history")
+@limiter.limit("10/minute")
 async def get_test_history(
+    request: Request,
     token_data: Annotated[TokenData, Depends(get_current_user)]
 ):
     """Get user's test history"""
@@ -88,7 +93,9 @@ async def get_test_history(
 # TEST DETAILS (PROTECTED)
 # ---------------------------
 @dashboard_router.get("/test/{test_id}")
+@limiter.limit("10/minute")
 async def get_test_detail(
+    request: Request,
     test_id: str,
     token_data: Annotated[TokenData, Depends(get_current_user)]
 ):
@@ -119,7 +126,9 @@ async def get_test_detail(
 # DASHBOARD STATS (PROTECTED)
 # ---------------------------
 @dashboard_router.get("/stats")
+@limiter.limit("10/minute")
 async def get_dashboard_stats(
+    request: Request,
     token_data: Annotated[TokenData, Depends(get_current_user)]
 ):
     """Get overall user statistics"""
@@ -164,7 +173,9 @@ async def get_dashboard_stats(
 # DOWNLOAD REPORT (PROTECTED)
 # ---------------------------
 @dashboard_router.get("/download_report/{test_id}")
+@limiter.limit("5/minute")
 async def download_report(
+    request: Request,
     test_id: str,
     token_data: Annotated[TokenData, Depends(get_current_user)]
 ):

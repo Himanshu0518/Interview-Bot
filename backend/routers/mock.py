@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends 
+from fastapi import APIRouter, Depends, Request
 from typing import Annotated, List
 from models.schemas import ParsedResume,MockQuestionRequest,MockResponse,RatingRequest,RatingResponse
 from utils.exception import MyException
@@ -8,9 +8,8 @@ import json
 from connections.mongo_client import MongoDBClient
 from utils.main_utils import get_mock_questions, get_mock_rating
 from models.auth import TokenData
-import re 
 from routers.auth import get_current_user
-
+from limiter import limiter
 
 main_router = APIRouter()
 client = MongoDBClient() 
@@ -22,7 +21,9 @@ mock_router = APIRouter(
 
 
 @mock_router.post("/get_questions", response_model=MockResponse)
+@limiter.limit("5/minute")
 async def get_questions(
+    request: Request,
     token_data: Annotated[TokenData, Depends(get_current_user)],
     question_query: MockQuestionRequest
 ):
@@ -48,8 +49,9 @@ async def get_questions(
 
     return questions
 
-@mock_router.post("/get_rating",response_model=RatingResponse)
-async def get_rating(token_data:Annotated[TokenData,Depends(get_current_user)],rating_query:RatingRequest):
+@mock_router.post("/get_rating", response_model=RatingResponse)
+@limiter.limit("5/minute")
+async def get_rating(request: Request, token_data: Annotated[TokenData, Depends(get_current_user)], rating_query: RatingRequest):
 
     input_data = rating_query.model_dump()
    

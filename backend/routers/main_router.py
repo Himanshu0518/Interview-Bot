@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, File, UploadFile, HTTPException, BackgroundTasks
+from fastapi import APIRouter, Depends, File, UploadFile, HTTPException, BackgroundTasks,Request
 from typing import Annotated, List
 from utils.main_utils import parse_resume , get_questions_from_resume 
 from models.schemas import ParsedResume, ParsedResumeDB, QuestionRequest, QuestionListResponse, ResumeStatus
@@ -12,8 +12,9 @@ from models.auth import TokenData
 import re
 from datetime import datetime, timezone
 from routers.auth import get_current_user
+from limiter import limiter
 
-main_router = APIRouter()
+router = APIRouter()
 client = MongoDBClient() 
 
 def extract_json_from_text(text: str) -> dict:
@@ -43,11 +44,13 @@ async def save_resume_to_db(db_resume_data: ParsedResumeDB, user_id: str):
         raise MyException(e, sys)
 
 
-@main_router.post("/upload_resume", response_model=ParsedResume)
+@router.post("/upload_resume", response_model=ParsedResume)
+@limiter.limit("5/minute")
 async def upload_resume(
     token_data: Annotated[TokenData, Depends(get_current_user)],
     background_tasks: BackgroundTasks,
-    file: UploadFile = File(...)
+    request: Request,
+    file: UploadFile = File(...),
 ):
     """Upload and parse resume with file validation"""
 
@@ -101,8 +104,9 @@ async def upload_resume(
     return ParsedResume(**extracted_info)
 
 
-@main_router.get("/resume_status", response_model=ResumeStatus)
-async def get_resume_status(token_data: Annotated[TokenData, Depends(get_current_user)]):
+@router.get("/resume_status", response_model=ResumeStatus)
+@limiter.limit("20/minute")
+async def get_resume_status(request: Request, token_data: Annotated[TokenData, Depends(get_current_user)]):
     """
     Lightweight endpoint for the client to poll after upload.
     Returns whether a resume exists and when it was last written by the background task.
@@ -119,8 +123,9 @@ async def get_resume_status(token_data: Annotated[TokenData, Depends(get_current
     return ResumeStatus(synced=True, updated_at=resume.get("updated_at"))
 
 
-@main_router.get("/get_resume", response_model=ParsedResume)
-async def get_resume(token_data:Annotated[TokenData, Depends(get_current_user)]):
+@router.get("/get_resume", response_model=ParsedResume)
+@limiter.limit("10/minute")
+async def get_resume(request:Request,token_data:Annotated[TokenData, Depends(get_current_user)]):
     try:
         resume_data = await client.find_one("Resume", {"user_id": token_data.user_id})
     except Exception as e:
@@ -130,8 +135,9 @@ async def get_resume(token_data:Annotated[TokenData, Depends(get_current_user)])
 
 
 
-@main_router.post("/get_questions",response_model=QuestionListResponse)
-async def get_questions(token_data:Annotated[TokenData, Depends(get_current_user)] , question_query: QuestionRequest):
+@router.post("/get_questions",response_model=QuestionListResponse)
+@limiter.limit("5/minute")
+async def get_questions(request:Request,token_data:Annotated[TokenData, Depends(get_current_user)] , question_query: QuestionRequest):
     username = token_data.username
     user_id = token_data.user_id
     input_data = question_query.model_dump()
@@ -160,8 +166,9 @@ async def get_questions(token_data:Annotated[TokenData, Depends(get_current_user
 #  print(extracted_info)
     return extracted_info
 
-@main_router.post("/resume_data", response_model=ParsedResume)
-async def post_resume_data(resume_data: ParsedResume, token_data: Annotated[TokenData, Depends(get_current_user)]):
+@router.post("/resume_data", response_model=ParsedResume)
+@limiter.limit("5/minute")
+async def post_resume_data(request:Request, resume_data: ParsedResume, token_data: Annotated[TokenData, Depends(get_current_user)]):
     db_resume_data = ParsedResumeDB(**resume_data.model_dump(), username=token_data.username, user_id=token_data.user_id)
     try:
       

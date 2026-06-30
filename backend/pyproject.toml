@@ -23,4 +23,5 @@ dependencies = [
     "langchain-xai>=0.2.5",
     "tenacity>=9.1.4",
     "langchain-groq>=0.3.8",
+    "slowapi>=0.1.10",
 ]

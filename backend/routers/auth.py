@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status,Request
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from utils.logger import logging
 from utils.exception import MyException
@@ -11,6 +11,7 @@ import jwt
 import os
 import sys
 from passlib.context import CryptContext
+from limiter import limiter
 
 # JWT config
 SECRET_KEY = os.getenv("JWT_SECRET_KEY")
@@ -95,7 +96,8 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]) -> Tok
 
 # Register new user
 @auth_router.post("/register", response_model=User, status_code=201)
-async def register_user(user_data: UserCreate):
+@limiter.limit("3/minute")
+async def register_user(user_data: UserCreate,request:Request):
     try:
         user_dict = user_data.model_dump()
         username = user_dict["username"]
@@ -133,7 +135,8 @@ async def register_user(user_data: UserCreate):
 
 # Login and get JWT token
 @auth_router.post("/token", response_model=Token)
-async def login_for_access_token(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
+@limiter.limit("5/minute")
+async def login_for_access_token(form_data: Annotated[OAuth2PasswordRequestForm, Depends()],request:Request):
     try:
         identifier = form_data.username   # username OR email
         password = form_data.password
@@ -169,7 +172,6 @@ async def login_for_access_token(form_data: Annotated[OAuth2PasswordRequestForm,
     
 
 @auth_router.get("/getCurrentUser", response_model=CurrentUser)
-async def get_current_user_data(current_user: Annotated[TokenData, Depends(get_current_user)]):
+@limiter.limit("10/minute")
+async def get_current_user_data(current_user: Annotated[TokenData, Depends(get_current_user)],request:Request):
     return CurrentUser(username=current_user.username, user_id=current_user.user_id)
-
-
